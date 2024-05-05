@@ -3,20 +3,44 @@ Main program entry point.
 """
 
 from datetime import datetime
+import os
+import click
+from dotenv import load_dotenv
 from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Consumption
 
-OCTOPUS_ENERGY_API_KEY: str = ''
-METER_MPAN: str = ''
-METER_SERIAL: str = ''
-client: OctopusEnergyClient = OctopusEnergyClient(
-    OCTOPUS_ENERGY_API_KEY,
-    METER_MPAN,
-    METER_SERIAL)
+load_dotenv()
 
-consumption: list[Consumption] = client.get_consumption(
-    from_date=datetime(2024, 4, 1, 0, 0),
-    to_date=datetime(2024, 4, 3, 4, 0))
+OCTOPUS_ENERGY_API_KEY: str = os.environ['OCTOPUS_ENERGY_API_KEY']
+METER_MPAN: str = os.environ['OCTOPUS_ENERGY_METER_MPAN']
+METER_SERIAL: str = os.environ['OCTOPUS_ENERGY_METER_SERIAL']
 
-for result in consumption:
-    print(f'{result.consumption} kWh for {result.interval_start} to {result.interval_end}')
+@click.group()
+@click.version_option('0.0.1', prog_name='Octopus Energy Copilot CLI')
+@click.help_option('-h', '--help')
+def main():
+    """
+    Root command for the Octopus Energy Copilot CLI.
+    """
+
+@main.command('consumption')
+@click.option('-f', '--from', 'from_date', type=click.DateTime(), help='From date.')
+@click.option('-t', '--to', 'to_date', type=click.DateTime(), help='To date.')
+def get_consumption(from_date: datetime = None, to_date: datetime = None):
+    """
+    Gets electricity consumption.
+    """
+    client: OctopusEnergyClient = OctopusEnergyClient(
+        OCTOPUS_ENERGY_API_KEY,
+        METER_MPAN,
+        METER_SERIAL)
+
+    consumption: list[Consumption] = client.get_consumption(
+        from_date=from_date,
+        to_date=to_date)
+
+    for entry in consumption:
+        print(f'{entry.consumption} kWh for {entry.interval_start} to {entry.interval_end}')
+
+if __name__ == '__main__':
+    main()
