@@ -4,6 +4,7 @@ Main program entry point.
 
 import click
 from cli.consumption import consumption_group
+from cli.chat import chat
 
 @click.group()
 @click.version_option('0.0.1', prog_name='Octopus Energy Copilot CLI')
@@ -14,6 +15,7 @@ def main():
     """
 
 main.add_command(consumption_group)
+main.add_command(chat)
 
 if __name__ == '__main__':
     main()

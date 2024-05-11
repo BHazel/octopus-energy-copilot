@@ -22,11 +22,11 @@ def consumption_group():
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_API_KEY'],
               help='The Octopus Energy API key (Not recommended).')
-@click.option('-m', '--meter-mpan', 'meter_mpan',
+@click.option('--meter-mpan', 'meter_mpan',
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_METER_MPAN'],
               help='The electricity meter MPAN.')
-@click.option('-s', '--meter-serial', 'meter_serial',
+@click.option('--meter-serial', 'meter_serial',
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_METER_SERIAL'],
               help='The electricity meter serial number.')
@@ -62,11 +62,11 @@ def list_consumption(api_key: str,
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_API_KEY'],
               help='The Octopus Energy API key (Not recommended).')
-@click.option('-m', '--meter-mpan', 'meter_mpan',
+@click.option('--meter-mpan', 'meter_mpan',
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_METER_MPAN'],
               help='The electricity meter MPAN.')
-@click.option('-s', '--meter-serial', 'meter_serial',
+@click.option('--meter-serial', 'meter_serial',
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_METER_SERIAL'],
               help='The electricity meter serial number.')
@@ -96,5 +96,48 @@ def get_max_consumption(api_key: str,
 
     max_consumption = max(consumption_list,
                           key=lambda entry: entry.consumption)
-    
+
     print(f'{max_consumption.consumption} kWh between {max_consumption.interval_start} and {max_consumption.interval_end}')
+
+@consumption_group.command('total')
+@click.option('--api-key', 'api_key',
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_API_KEY'],
+              help='The Octopus Energy API key (Not recommended).')
+@click.option('--meter-mpan', 'meter_mpan',
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_METER_MPAN'],
+              help='The electricity meter MPAN.')
+@click.option('--meter-serial', 'meter_serial',
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_METER_SERIAL'],
+              help='The electricity meter serial number.')
+@click.option('-f', '--from', 'from_date',
+              type=click.DateTime(),
+              help='From date.')
+@click.option('-t', '--to', 'to_date',
+              type=click.DateTime(),
+              help='To date.')
+def get_total_consumption(api_key: str,
+                    meter_mpan: str,
+                    meter_serial: str,
+                    from_date: datetime = None,
+                    to_date: datetime = None
+    ):
+    """
+    Gets the total electricity consumption between two dates.
+    """
+    client: OctopusEnergyClient = OctopusEnergyClient(
+        api_key,
+        meter_mpan,
+        meter_serial)
+
+    consumption_list: list[Consumption] = client.get_consumption(
+        from_date=from_date,
+        to_date=to_date)
+
+    total_consumption = sum([entry.consumption for entry in consumption_list])
+    start_date = from_date if from_date else min([entry.interval_start for entry in consumption_list])
+    end_date = to_date if to_date else max([entry.interval_end for entry in consumption_list])
+
+    print(f'{total_consumption} kWh between {start_date} and {end_date}')

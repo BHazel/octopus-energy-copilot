@@ -41,7 +41,7 @@ class OctopusEnergyClient:
         Initializes an instance of the OctopusEnergyClient class.
 
         Args:
-            apiKey (str): The API key for accessing the Octopus Energy API.
+            api_key (str): The API key for accessing the Octopus Energy API.
             meter_mpan (str): The Meter Point Administration Number (MPAN) for the meter.
             meter_serial (str): The serial number for the meter.
         """
@@ -107,7 +107,7 @@ class OctopusEnergyClient:
 
         url_parameters: str = ''
         if len(parameters) > 0:
-            url_parameters = f'?{'&'.join([f'{key}={value}' for key, value in parameters.items()])}'
+            url_parameters = f'?{"&".join([f"{key}={value}" for key, value in parameters.items()])}'
 
         response: Response = self.get(f'{base_request_uri}{url_parameters}')
 
