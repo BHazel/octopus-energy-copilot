@@ -3,6 +3,7 @@ Main program entry point.
 """
 
 import click
+from cli.chat import chat
 from cli.consumption import consumption_group
 
 @click.group()
@@ -14,6 +15,7 @@ def main():
     """
 
 main.add_command(consumption_group)
+main.add_command(chat)
 
 if __name__ == '__main__':
     main()
