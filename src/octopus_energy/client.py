@@ -5,7 +5,7 @@ A client and types for interacting with the Octopus Energy API.
 import json
 from datetime import datetime
 from requests import get, Response
-from octopus_energy.model import Consumption
+from octopus_energy.model import Consumption, ConsumptionGrouping
 
 BASE_URI: str = 'https://api.octopus.energy/v1'
 
@@ -51,7 +51,8 @@ class OctopusEnergyClient:
 
     def get_consumption(self,
                         from_date: datetime = None,
-                        to_date: datetime = None
+                        to_date: datetime = None,
+                        grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR
         ) -> list[Consumption]:
         """
         Retrieves consumption data from the Octopus Energy API.
@@ -61,6 +62,8 @@ class OctopusEnergyClient:
                 Defaults to None.
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
+            grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
+                Defaults to ConsumptionGrouping.HALF_HOUR.
 
         Returns:
             list[Consumption]: A list of consumption data.
@@ -69,7 +72,7 @@ class OctopusEnergyClient:
         is_next: bool = True
         page: int = 1
         while is_next:
-            consumption: ConsumptionResponse = self.get_consumption_page(from_date, to_date, page)
+            consumption: ConsumptionResponse = self.get_consumption_page(from_date, to_date, grouping, page)
             consumption_data += consumption.results
             page += 1
             if consumption.next is None:
@@ -80,6 +83,7 @@ class OctopusEnergyClient:
     def get_consumption_page(self,
                              from_date: datetime = None,
                              to_date: datetime = None,
+                             grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR,
                              page: int = 1
         ) -> ConsumptionResponse:
         """
@@ -90,6 +94,8 @@ class OctopusEnergyClient:
                 Defaults to None.
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
+            grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
+                Defaults to ConsumptionGrouping.HALF_HOUR.
             page (int, optional): The page number of the consumption data.
                 Defaults to 1.
 
@@ -104,6 +110,8 @@ class OctopusEnergyClient:
             parameters['period_to'] = to_date.isoformat()
         if page:
             parameters['page'] = page
+        if grouping != ConsumptionGrouping.HALF_HOUR:
+            parameters['group_by'] = grouping.value
 
         url_parameters: str = ''
         if len(parameters) > 0:

@@ -7,7 +7,7 @@ import os
 import click
 from dotenv import load_dotenv
 from octopus_energy.client import OctopusEnergyClient
-from octopus_energy.model import Consumption
+from octopus_energy.model import Consumption, ConsumptionGrouping
 from octopus_energy.repository import OctopusEnergyRepository
 
 load_dotenv()
@@ -37,11 +37,16 @@ def consumption_group():
 @click.option('-t', '--to', 'to_date',
               type=click.DateTime(),
               help='To date.')
+@click.option('-g', '--group', 'grouping',
+                type=click.Choice(['half-hour', 'hour', 'day', 'week', 'month', 'quarter']),
+                default='half-hour',
+                help='The grouping of the consumption data.')
 def list_consumption(api_key: str,
                     meter_mpan: str,
                     meter_serial: str,
                     from_date: datetime = None,
-                    to_date: datetime = None
+                    to_date: datetime = None,
+                    grouping: str = 'half-hour'
     ):
     """
     Lists electricity consumption between two dates.
@@ -54,7 +59,8 @@ def list_consumption(api_key: str,
 
     consumption: list[Consumption] = repository.get_consumption(
         from_date=from_date,
-        to_date=to_date)
+        to_date=to_date,
+        grouping=get_consumption_grouping(grouping))
 
     for entry in consumption:
         print(f'{entry.consumption} kWh for {entry.interval_start} to {entry.interval_end}')
@@ -78,11 +84,16 @@ def list_consumption(api_key: str,
 @click.option('-t', '--to', 'to_date',
               type=click.DateTime(),
               help='To date.')
+@click.option('-g', '--group', 'grouping',
+                type=click.Choice(['half-hour', 'hour', 'day', 'week', 'month', 'quarter']),
+                default='half-hour',
+                help='The grouping of the consumption data.')
 def get_max_consumption(api_key: str,
                     meter_mpan: str,
                     meter_serial: str,
                     from_date: datetime = None,
-                    to_date: datetime = None
+                    to_date: datetime = None,
+                    grouping: str = 'half-hour'
     ):
     """
     Gets the maximum electricity consumption between two dates.
@@ -95,7 +106,8 @@ def get_max_consumption(api_key: str,
 
     max_consumption: Consumption = repository.get_max_consumption(
         from_date=from_date,
-        to_date=to_date)
+        to_date=to_date,
+        grouping=get_consumption_grouping(grouping))
 
     print(f'{max_consumption.consumption} kWh between {max_consumption.interval_start} and {max_consumption.interval_end}')
 
@@ -118,11 +130,16 @@ def get_max_consumption(api_key: str,
 @click.option('-t', '--to', 'to_date',
               type=click.DateTime(),
               help='To date.')
+@click.option('-g', '--group', 'grouping',
+                type=click.Choice(['half-hour', 'hour', 'day', 'week', 'month', 'quarter']),
+                default='half-hour',
+                help='The grouping of the consumption data.')
 def get_min_consumption(api_key: str,
                     meter_mpan: str,
                     meter_serial: str,
                     from_date: datetime = None,
-                    to_date: datetime = None
+                    to_date: datetime = None,
+                    grouping: str = 'half-hour'
     ):
     """
     Gets the minimum electricity consumption between two dates.
@@ -135,7 +152,8 @@ def get_min_consumption(api_key: str,
 
     min_consumption: Consumption = repository.get_min_consumption(
         from_date=from_date,
-        to_date=to_date)
+        to_date=to_date,
+        grouping=get_consumption_grouping(grouping))
 
     print(f'{min_consumption.consumption} kWh between {min_consumption.interval_start} and {min_consumption.interval_end}')
 
@@ -178,3 +196,10 @@ def get_total_consumption(api_key: str,
         to_date=to_date)
 
     print(f'{total_consumption.consumption} kWh between {total_consumption.interval_start} and {total_consumption.interval_end}')
+
+def get_consumption_grouping(grouping: str) -> ConsumptionGrouping:
+    """
+    Gets the consumption grouping from the CLI input.
+    """
+    converted_grouping: str = None if grouping == 'half-hour' else grouping
+    return ConsumptionGrouping(converted_grouping)
