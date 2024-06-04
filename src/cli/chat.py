@@ -2,6 +2,7 @@
 CLI commands for AI chat.
 """
 
+from datetime import datetime
 import os
 import click
 from colorama import Fore, Style
@@ -48,36 +49,27 @@ def chat(api_key: str,
     ):
     """
     Work with Octopus Energy data via natural language chat.
-
-    Args:
-        api_key (str): The Octopus Energy API key.
-        meter_mpan (str): The electricity meter MPAN.
-        meter_serial (str): The electricity meter serial number.
-        openai_api_key (str): The Open AI API key.
-        model (str): The AI model to power the chat.
-        debug (bool): A value indicating whether to display more verbose output for debugging.
     """
     update_client_credentials(api_key, meter_mpan, meter_serial, openai_api_key)
 
-    llm_chat = ChatOpenAI(api_key=openai_api_key, model=model)
+    llm_chat_model = ChatOpenAI(api_key=openai_api_key, model=model)
     tool_functions = tools().values()
-    chat_with_tools = llm_chat.bind_tools(tool_functions)
-    main_chat_prompt = """
-        You are a helpful AI assistant to answer questions about energy consumption data
-        for an Octopus Energy customer.  Using the chat history context and data provided
-        in JSON format answer the questions provided.  If you do not know the answer,
-        please say so.  If you need more details from the customer, please ask for them.
-    """
+    chat_with_tools = llm_chat_model.bind_tools(tool_functions)
+    main_chat_prompt_path = f'{os.path.dirname(__file__)}/../assets/main_chat_prompt.txt'
+    with open(main_chat_prompt_path, 'r', encoding='utf-8') as main_chat_prompt_file:
+        main_chat_prompt = main_chat_prompt_file.read()
+
     chat_history = [SystemMessage(main_chat_prompt)]
+    chat_history.append(HumanMessage(f'The date today is {datetime.now()}'))
     print_chat(COPILOT_MSG, 'Welcome to the Octopus Energy Copilot!')
     print_chat(COPILOT_MSG, f'Open AI Model: {model}', True, debug)
 
     while True:
         user_input = prompt_chat('User')
         chat_history.append(HumanMessage(user_input))
-        ai_response = chat_with_tools.invoke(user_input)
+        ai_response = chat_with_tools.invoke(chat_history)
         chat_history.append(ai_response)
-        print_chat(COPILOT_MSG, f' Tool Calls: {ai_response.tool_calls}', True, debug)
+        print_chat(COPILOT_MSG, f'Tool Calls: {ai_response.tool_calls}', True, debug)
 
         for tool_call in ai_response.tool_calls:
             selected_tool = tools()[tool_call['name']]
@@ -85,7 +77,7 @@ def chat(api_key: str,
             print_chat(COPILOT_MSG, f'Tool {tool_call['name']} Output: {tool_output}', True, debug)
             chat_history.append(ToolMessage(tool_output, tool_call_id=tool_call['id']))
 
-        ai_response = llm_chat.invoke(chat_history)
+        ai_response = llm_chat_model.invoke(chat_history)
         chat_history.append(ai_response)
         print_chat(COPILOT_MSG, ai_response.content)
 
