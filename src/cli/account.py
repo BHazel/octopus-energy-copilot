@@ -5,7 +5,7 @@ CLI commands for working with an account.
 import os
 import click
 from dotenv import load_dotenv
-import jsonpickle
+from cli import create_json_output
 from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Account
 from octopus_energy.repository import OctopusEnergyRepository
@@ -24,11 +24,16 @@ def account_group():
               default=os.environ['OCTOPUS_ENERGY_API_KEY'],
               help='The Octopus Energy API key (Not recommended).')
 @click.option('-n', '--number', 'number',
-                type=click.STRING,
-                default=os.environ['OCTOPUS_ENERGY_ACCOUNT_NUMBER'],
-                help='The account number (Not recommended).')
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_ACCOUNT_NUMBER'],
+              help='The account number (Not recommended).')
+@click.option('-q', '--query', 'query',
+              type=click.STRING,
+              default=None,
+              help='The JMESPath query to filter and structure the output.')
 def get_account(api_key: str,
-                number: str
+                number: str,
+                query: str
     ):
     """
     Gets account details.
@@ -41,4 +46,6 @@ def get_account(api_key: str,
             None))
 
     account: Account = repository.get_account()
-    print(jsonpickle.encode(account, indent=True))
+    output = create_json_output(account, query)
+
+    print(output)
