@@ -3,6 +3,7 @@ Main program entry point.
 """
 
 import click
+from cli.account import account_group
 from cli.chat import chat
 from cli.consumption import consumption_group
 
@@ -14,6 +15,7 @@ def main():
     Root command for the Octopus Energy Copilot CLI.
     """
 
+main.add_command(account_group)
 main.add_command(consumption_group)
 main.add_command(chat)
 

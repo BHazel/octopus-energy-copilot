@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 import click
 from dotenv import load_dotenv
+import jsonpickle
 from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Consumption, ConsumptionGrouping
 from octopus_energy.repository import OctopusEnergyRepository
@@ -54,6 +55,7 @@ def list_consumption(api_key: str,
     repository: OctopusEnergyRepository = OctopusEnergyRepository(
         OctopusEnergyClient(
             api_key,
+            None,
             meter_mpan,
             meter_serial))
 
@@ -62,8 +64,7 @@ def list_consumption(api_key: str,
         to_date=to_date,
         grouping=get_consumption_grouping(grouping))
 
-    for entry in consumption:
-        print(f'{entry.consumption} kWh for {entry.interval_start} to {entry.interval_end}')
+    print(jsonpickle.encode(consumption, indent=True))
 
 @consumption_group.command('max')
 @click.option('--api-key', 'api_key',
@@ -101,6 +102,7 @@ def get_max_consumption(api_key: str,
     repository: OctopusEnergyRepository = OctopusEnergyRepository(
         OctopusEnergyClient(
             api_key,
+            None,
             meter_mpan,
             meter_serial))
 
@@ -109,7 +111,7 @@ def get_max_consumption(api_key: str,
         to_date=to_date,
         grouping=get_consumption_grouping(grouping))
 
-    print(f'{max_consumption.consumption} kWh between {max_consumption.interval_start} and {max_consumption.interval_end}')
+    print(jsonpickle.encode(max_consumption, indent=True))
 
 @consumption_group.command('min')
 @click.option('--api-key', 'api_key',
@@ -147,6 +149,7 @@ def get_min_consumption(api_key: str,
     repository: OctopusEnergyRepository = OctopusEnergyRepository(
         OctopusEnergyClient(
             api_key,
+            None,
             meter_mpan,
             meter_serial))
 
@@ -155,7 +158,7 @@ def get_min_consumption(api_key: str,
         to_date=to_date,
         grouping=get_consumption_grouping(grouping))
 
-    print(f'{min_consumption.consumption} kWh between {min_consumption.interval_start} and {min_consumption.interval_end}')
+    print(jsonpickle.encode(min_consumption, indent=True))
 
 @consumption_group.command('total')
 @click.option('--api-key', 'api_key',
@@ -188,6 +191,7 @@ def get_total_consumption(api_key: str,
     repository: OctopusEnergyRepository = OctopusEnergyRepository(
         OctopusEnergyClient(
             api_key,
+            None,
             meter_mpan,
             meter_serial))
 
@@ -195,7 +199,7 @@ def get_total_consumption(api_key: str,
         from_date=from_date,
         to_date=to_date)
 
-    print(f'{total_consumption.consumption} kWh between {total_consumption.interval_start} and {total_consumption.interval_end}')
+    print(jsonpickle.encode(total_consumption, indent=True))
 
 def get_consumption_grouping(grouping: str) -> ConsumptionGrouping:
     """

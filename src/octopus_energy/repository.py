@@ -4,7 +4,7 @@ A repository for working with data from the Octopus Energy API.
 
 from datetime import datetime
 from octopus_energy.client import OctopusEnergyClient
-from octopus_energy.model import Consumption, ConsumptionGrouping
+from octopus_energy.model import Account, Consumption, ConsumptionGrouping
 
 class OctopusEnergyRepository:
     """
@@ -19,6 +19,15 @@ class OctopusEnergyRepository:
             client (OctopusEnergyClient): The Octopus Energy client.
         """
         self.client: OctopusEnergyClient = client
+
+    def get_account(self) -> Account:
+        """
+        Gets an account.
+
+        Returns:
+            Account: The account.
+        """
+        return self.client.get_account()
 
     def get_consumption(self,
                         from_date: datetime = None,
@@ -107,5 +116,5 @@ class OctopusEnergyRepository:
         total_consumption: float = sum([c.consumption for c in consumption_data])
         interval_start = from_date if from_date else min([entry.interval_start for entry in consumption_data])
         interval_end = to_date if to_date else max([entry.interval_end for entry in consumption_data])
-        consumption = Consumption(total_consumption, interval_start, interval_end)
+        consumption = Consumption(total_consumption, interval_start.isoformat(), interval_end.isoformat())
         return consumption

@@ -16,6 +16,7 @@ load_dotenv()
 repository = OctopusEnergyRepository(
     OctopusEnergyClient(
         os.environ['OCTOPUS_ENERGY_API_KEY'],
+        None,
         os.environ['OCTOPUS_ENERGY_METER_MPAN'],
         os.environ['OCTOPUS_ENERGY_METER_SERIAL']))
 

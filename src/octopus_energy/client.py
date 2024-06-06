@@ -5,7 +5,7 @@ A client and types for interacting with the Octopus Energy API.
 import json
 from datetime import datetime
 from requests import get, Response
-from octopus_energy.model import Consumption, ConsumptionGrouping
+from octopus_energy.model import Account, Consumption, ConsumptionGrouping
 
 BASE_URI: str = 'https://api.octopus.energy/v1'
 
@@ -36,18 +36,41 @@ class OctopusEnergyClient:
     A client for interacting with the Octopus Energy API.
     """
 
-    def __init__(self, api_key: str, meter_mpan: str, meter_serial: str):
+    def __init__(self,
+                 api_key: str,
+                 account_number: str = None,
+                 meter_mpan: str = None,
+                 meter_serial: str = None
+    ):
         """
         Initializes an instance of the OctopusEnergyClient class.
 
         Args:
-            apiKey (str): The API key for accessing the Octopus Energy API.
-            meter_mpan (str): The Meter Point Administration Number (MPAN) for the meter.
-            meter_serial (str): The serial number for the meter.
+            api_key (str): The API key for accessing the Octopus Energy API.
+            account_number (str, optional): The Octopus Energy account number.
+                Defaults to None.
+            meter_mpan (str, optional): The Meter Point Administration Number (MPAN) for the meter.
+                Defaults to None.
+            meter_serial (str, optional): The serial number for the meter.
+                Defaults to None.
         """
         self.api_key: str = api_key
         self.meter_mpan: str = meter_mpan
         self.meter_serial: str = meter_serial
+        self.account_number: str = account_number
+
+    def get_account(self) -> Account:
+        """
+        Retrieves account data from the Octopus Energy API.
+
+        Returns:
+            Account: The account data.
+        """
+        response: Response = self.get(f'{BASE_URI}/accounts/{self.account_number}')
+        account_data = json.loads(response.text)
+        account: Account = Account(**account_data)
+        
+        return account
 
     def get_consumption(self,
                         from_date: datetime = None,
