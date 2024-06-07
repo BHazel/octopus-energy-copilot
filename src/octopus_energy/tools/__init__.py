@@ -3,6 +3,7 @@ AI tools module.
 """
 
 from octopus_energy.tools.consumption import (
+    convert_consumption_to_co2,
     get_max_consumption,
     get_min_consumption,
     get_period_for_grouping,
@@ -15,6 +16,7 @@ def tools() -> dict[str, callable]:
         dict[str, callable]: The tools available to the AI copilot.
     """
     return {
+        'convert_consumption_to_co2': convert_consumption_to_co2,
         'get_max_consumption': get_max_consumption,
         'get_min_consumption': get_min_consumption,
         'get_period_for_grouping': get_period_for_grouping,

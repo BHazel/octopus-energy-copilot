@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import jsonpickle
 from dotenv import load_dotenv
 from langchain_core.tools import tool
+from energy.conversion import convert_to_co2, kWh
 from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import ConsumptionGrouping
 from octopus_energy.repository import OctopusEnergyRepository
@@ -139,3 +140,17 @@ def get_period_for_grouping(from_date: str = None,
             end_date = start_date
 
     return end_date.isoformat()
+
+@tool
+def convert_consumption_to_co2(consumption: float) -> float:
+    """
+    Converts a consumption value in kWh to the mass of CO2 saved in kg.
+
+    Args:
+        consumption: The consumption value in kWh.
+
+    Returns:
+        float: The consumption value converted to the mass of CO2 saved in kg.
+    """
+    consumption_in_kwh = consumption * kWh
+    return convert_to_co2(consumption_in_kwh)
