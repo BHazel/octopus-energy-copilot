@@ -1,0 +1,7 @@
+What is the address on my account?
+What was my consumption on 1st May?
+What was my consumption between 09:00 and 17:00 on 25th April 2024?
+What was my consumption in March?
+Which hour had the highest consumption on 10th May?
+Which week had the lowest consumption in April?
+What is that consumption in CO2 saved?
