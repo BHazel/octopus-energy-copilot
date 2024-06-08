@@ -18,6 +18,10 @@ load_dotenv()
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_API_KEY'],
               help='The Octopus Energy API key (Not recommended).')
+@click.option('-n', '--number', 'number',
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_ACCOUNT_NUMBER'],
+              help='The account number (Not recommended).')
 @click.option('--meter-mpan', 'meter_mpan',
               type=click.STRING,
               default=os.environ['OCTOPUS_ENERGY_METER_MPAN'],
@@ -39,6 +43,7 @@ load_dotenv()
               is_flag=True,
               help='Display more verbose output for debugging.')
 def chat(api_key: str,
+         number: str,
          meter_mpan: str,
          meter_serial: str,
          openai_api_key: str,
@@ -48,7 +53,7 @@ def chat(api_key: str,
     """
     Work with Octopus Energy data via natural language chat.
     """
-    update_client_credentials(api_key, meter_mpan, meter_serial, openai_api_key)
+    update_client_credentials(api_key, number, meter_mpan, meter_serial, openai_api_key)
     llm_chat_model = ChatOpenAI(api_key=openai_api_key, model=model)
     chat_service = OctopusEnergyChatService(api_key, None, meter_mpan, meter_serial, llm_chat_model)
     print_chat(COPILOT_MSG, 'Welcome to the Octopus Energy Copilot!')
@@ -62,6 +67,7 @@ def chat(api_key: str,
         print_chat(COPILOT_MSG, chat_service.chat_history[-1].content)
 
 def update_client_credentials(api_key: str = None,
+                              number: str = None,
                               meter_mpan: str = None,
                               meter_serial: str = None,
                               openai_api_key: str = None
@@ -71,12 +77,15 @@ def update_client_credentials(api_key: str = None,
 
     Args:
         api_key: The Octopus Energy API key.
+        number: The Octopus Energy account number.
         meter_mpan: The electricity meter MPAN.
         meter_serial: The electricity meter serial number.
         openai_api_key: The Open AI API key.
     """
     if api_key is not None:
         os.environ['OCTOPUS_ENERGY_API_KEY'] = api_key
+    if number is not None:
+        os.environ['OCTOPUS_ENERGY_ACCOUNT_NUMBER'] = number
     if meter_mpan is not None:
         os.environ['OCTOPUS_ENERGY_METER_MPAN'] = meter_mpan
     if meter_serial is not None:
