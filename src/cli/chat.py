@@ -2,14 +2,12 @@
 CLI commands for AI chat.
 """
 
-from datetime import datetime
 import os
 import click
 from colorama import Fore, Style
 from dotenv import load_dotenv
-from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langchain_openai import ChatOpenAI
-from octopus_energy.tools import tools
+from octopus_energy.chat import OctopusEnergyChatService
 
 COPILOT_MSG = 'Copilot'
 
@@ -51,35 +49,17 @@ def chat(api_key: str,
     Work with Octopus Energy data via natural language chat.
     """
     update_client_credentials(api_key, meter_mpan, meter_serial, openai_api_key)
-
     llm_chat_model = ChatOpenAI(api_key=openai_api_key, model=model)
-    tool_functions = tools().values()
-    chat_with_tools = llm_chat_model.bind_tools(tool_functions)
-    main_chat_prompt_path = f'{os.path.dirname(__file__)}/../assets/main_chat_prompt.txt'
-    with open(main_chat_prompt_path, 'r', encoding='utf-8') as main_chat_prompt_file:
-        main_chat_prompt = main_chat_prompt_file.read()
-
-    chat_history = [SystemMessage(main_chat_prompt)]
-    chat_history.append(HumanMessage(f'The date today is {datetime.now()}'))
+    chat_service = OctopusEnergyChatService(api_key, None, meter_mpan, meter_serial, llm_chat_model)
     print_chat(COPILOT_MSG, 'Welcome to the Octopus Energy Copilot!')
     print_chat(COPILOT_MSG, f'Open AI Model: {model}', True, debug)
 
     while True:
         user_input = prompt_chat('User')
-        chat_history.append(HumanMessage(user_input))
-        ai_response = chat_with_tools.invoke(chat_history)
-        chat_history.append(ai_response)
-        print_chat(COPILOT_MSG, f'Tool Calls: {ai_response.tool_calls}', True, debug)
+        for debug_message in chat_service.post_message(user_input):
+            print_chat(COPILOT_MSG, debug_message, True, debug)
 
-        for tool_call in ai_response.tool_calls:
-            selected_tool = tools()[tool_call['name']]
-            tool_output = selected_tool.invoke(tool_call['args'])
-            print_chat(COPILOT_MSG, f'Tool {tool_call['name']} Output: {tool_output}', True, debug)
-            chat_history.append(ToolMessage(tool_output, tool_call_id=tool_call['id']))
-
-        ai_response = llm_chat_model.invoke(chat_history)
-        chat_history.append(ai_response)
-        print_chat(COPILOT_MSG, ai_response.content)
+        print_chat(COPILOT_MSG, chat_service.chat_history[-1].content)
 
 def update_client_credentials(api_key: str = None,
                               meter_mpan: str = None,
@@ -129,7 +109,7 @@ def print_chat(source: str,
     """
     entity_colour = Fore.BLUE if is_debug else Fore.YELLOW
     message_colour = Style.DIM if is_debug else Style.NORMAL
-    
+
     source = f'{source} (Debug)' if is_debug else source
     if (debug_mode and is_debug) or (not debug_mode and not is_debug):
         print(f'{entity_colour}{source} >{Fore.RESET} {message_colour}{message}{Style.RESET_ALL}')
