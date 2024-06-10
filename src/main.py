@@ -4,6 +4,7 @@ Main program entry point.
 
 import click
 from cli.account import account_group
+from cli.bill import bill_group
 from cli.chat import chat
 from cli.consumption import consumption_group
 
@@ -16,6 +17,7 @@ def main():
     """
 
 main.add_command(account_group)
+main.add_command(bill_group)
 main.add_command(consumption_group)
 main.add_command(chat)
 
