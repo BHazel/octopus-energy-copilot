@@ -2,10 +2,11 @@
 CLI commands for electricity consumption.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import click
 from dotenv import load_dotenv
+from gradio import Dropdown, Interface, Textbox
 from cli import create_json_output
 from energy.conversion import convert_to_co2, kWh
 from octopus_energy.client import OctopusEnergyClient
@@ -258,6 +259,99 @@ def get_total_consumption(api_key: str,
     output = create_json_output(total_consumption, query)
     print(output)
 
+@consumption_group.command('ui')
+@click.option('--api-key', 'api_key',
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_API_KEY'],
+              help='The Octopus Energy API key (Not recommended).')
+@click.option('-m', '--meter-mpan', 'meter_mpan',
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_METER_MPAN'],
+              help='The electricity meter MPAN.')
+@click.option('-s', '--meter-serial', 'meter_serial',
+              type=click.STRING,
+              default=os.environ['OCTOPUS_ENERGY_METER_SERIAL'],
+              help='The electricity meter serial number.')
+@click.option('-o', '--open', 'open_in_browser',
+              type=click.BOOL,
+              is_flag=True,
+              help='Open the UI in the default web browser.')
+def use_consumption_ui(api_key: str,
+                        meter_mpan: str,
+                        meter_serial: str,
+                        open_in_browser: bool):
+    """
+    Use a web user interface to get electricity consumption data.
+    """
+    repository: OctopusEnergyRepository = OctopusEnergyRepository(
+        OctopusEnergyClient(
+            api_key,
+            None,
+            meter_mpan,
+            meter_serial))
+
+    def load_consumption_ui(api_key: str,
+                            meter_mpan: str,
+                            meter_serial: str,
+                            data_to_retrieve: str,
+                            from_date: str,
+                            to_date: str,
+                            group: str,
+                            query: str):
+        """
+        Loads the consumption UI.
+
+        Args:
+            api_key (str): The API key.
+            meter_mpan (str): The meter MPAN.
+            meter_serial (str): The meter serial number.
+            data_to_retrieve (str): The consumption data to retrieve.
+            from_date (str): The start date.
+            to_date (str): The end date.
+            group (str): The consumption grouping.
+            query (str): The JMESPath query.
+        """
+        consumption_function = map_ui_data_to_retrieve_to_function(data_to_retrieve, repository)
+        interval_start = datetime.fromisoformat(from_date) if from_date else None
+        interval_end = datetime.fromisoformat(to_date) if to_date else None
+        grouping = map_ui_grouping_to_consumption_grouping(group)
+        consumption_data = consumption_function(from_date=interval_start,
+                                                to_date=interval_end,
+                                                grouping=grouping)
+
+        output = create_json_output(consumption_data, query)
+        return output
+
+    default_from_date = (datetime.now() - timedelta(days=1)).replace(minute=0,
+                                                                     second=0,
+                                                                     microsecond=0)
+    default_to_date = datetime.now().replace(minute=0, second=0, microsecond=0)
+    interface = Interface(load_consumption_ui,
+                          inputs=[
+                              Textbox(label='API Key', type='password', value=api_key),
+                              Textbox(label='Meter MPAN', value=meter_mpan),
+                              Textbox(label='Meter Serial', value=meter_serial),
+                              Dropdown(label='Data to Retrieve', value='List', choices=[
+                                  'List',
+                                  'Maximum',
+                                  'Minimum',
+                                  'Total'
+                              ]),
+                              Textbox(label='From Date', value=default_from_date.isoformat()),
+                              Textbox(label='To Date', value=default_to_date.isoformat()),
+                              Dropdown(label='Grouping', value='Half Hour', choices=[
+                                    'Half Hour',
+                                    'Hour',
+                                    'Day',
+                                    'Week',
+                                    'Month',
+                                    'Quarter'
+                                ]),
+                              Textbox(label='JMESPath Query')
+                          ],
+                          outputs='json')
+    interface.launch(inbrowser=open_in_browser)
+
 def get_consumption_grouping(grouping: str) -> ConsumptionGrouping:
     """
     Gets the consumption grouping from the CLI input.
@@ -286,3 +380,54 @@ def convert_consumption_to_co2(consumption: Consumption) -> Consumption:
     return Consumption(consumption_in_co2,
                        consumption.interval_start,
                        consumption.interval_end)
+
+def map_ui_data_to_retrieve_to_function(data_to_retrieve: str, repository: OctopusEnergyRepository):
+    """
+    Maps the UI selection for the data to retrieve to the appropriate repository function.
+
+    Args:
+        data_to_retrieve (str): The data to retrieve.
+        repository (OctopusEnergyRepository): The Octopus Energy repository.
+    
+    Returns:
+        Callable: The function to retrieve the data.
+    """
+    match data_to_retrieve:
+        case 'List':
+            return repository.get_consumption
+        case 'Maximum':
+            return repository.get_max_consumption
+        case 'Minimum':
+            return repository.get_min_consumption
+        case 'Total':
+            return repository.get_total_consumption
+        case _:
+            return repository.get_consumption
+
+def map_ui_grouping_to_consumption_grouping(grouping: str) -> ConsumptionGrouping:
+    """
+    Maps the UI selection for the grouping to the appropriate consumption grouping.
+
+    Args:
+        grouping (str): The grouping.
+    
+    Returns:
+        ConsumptionGrouping: The consumption grouping.
+    """
+    match grouping:
+        case 'Half Hour':
+            consumption_grouping = ConsumptionGrouping.HALF_HOUR
+        case 'Hour':
+            consumption_grouping = ConsumptionGrouping.HOUR
+        case 'Day':
+            consumption_grouping = ConsumptionGrouping.DAY
+        case 'Week':
+            consumption_grouping = ConsumptionGrouping.WEEK
+        case 'Month':
+            consumption_grouping = ConsumptionGrouping.MONTH
+        case 'Quarter':
+            consumption_grouping = ConsumptionGrouping.QUARTER
+        case _:
+            consumption_grouping = ConsumptionGrouping.HALF_HOUR
+
+    return consumption_grouping

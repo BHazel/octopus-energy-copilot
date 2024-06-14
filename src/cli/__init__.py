@@ -18,7 +18,7 @@ def create_json_output(value: Any, query: str = None) -> str:
     Returns:
         str: The filtered and structured JSON string.
     """
-    if query is not None:
+    if query:
         if isinstance(value, list):
             sanitised_value = [item.__dict__ for item in value]
         else:
