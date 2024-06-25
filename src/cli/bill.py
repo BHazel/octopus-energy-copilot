@@ -3,14 +3,15 @@ CLI commands for working with energy bills.
 """
 
 import os
+import sys
 import click
 from dotenv import load_dotenv
-from gradio import File, Interface, Textbox
 from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI
 from bill.extraction import BillExtractor
 from bill.model import EnergyBill
 from cli import create_json_output
+from cli.ui.bill import BillUiBuilder
 
 load_dotenv()
 
@@ -40,12 +41,17 @@ def bill_group():
 @click.option('--ui', 'ui',
               type=click.BOOL,
               is_flag=True,
-              help='Use a web user interface for the chat.  Any file argument will be ignored.')
+              help='Use a web user interface to extract bill data.  Any file argument will be ignored.')
+@click.option('-o', '--open', 'open_in_browser',
+              type=click.BOOL,
+              is_flag=True,
+              help='Open the UI in the default web browser.  Ignored if not using a web user interface.')
 def read_bill(openai_api_key: str,
               model: str,
               query: str,
               file: str,
-              ui: bool
+              ui: bool,
+              open_in_browser: bool
     ):
     """
     Reads an energy bill from a file.
@@ -54,29 +60,17 @@ def read_bill(openai_api_key: str,
     bill_extractor: BillExtractor = BillExtractor(llm_chat_model)
 
     if ui:
-        use_web_ui(bill_extractor, query)
+        use_web_ui(bill_extractor, query, open_in_browser)
     else:
         use_cli(bill_extractor, file, query)
 
-def use_web_ui(bill_extractor: BillExtractor, query: str):
+def use_web_ui(bill_extractor: BillExtractor, query: str, open_in_browser: bool):
     """
     Uses a web UI for the bill extraction.
     """
-    def extract_bill_information(bill_file: str, query: str):
-        """
-        Extracts bill information.
-        """
-        bill: EnergyBill = bill_extractor.extract_bill_information(bill_file)
-        output = create_json_output(bill, query)
-        return output
-
-    interface = Interface(extract_bill_information,
-                          inputs=[
-                              File(label='Bill File'),
-                              Textbox(label='JMESPath Query')
-                          ],
-                          outputs='json')
-    interface.launch()
+    bill_ui_builder = BillUiBuilder(bill_extractor, query)
+    interface = bill_ui_builder.build_ui()
+    interface.launch(inbrowser=open_in_browser)
 
 def use_cli(bill_extractor: BillExtractor, bill_file: str, query: str):
     """
@@ -84,7 +78,7 @@ def use_cli(bill_extractor: BillExtractor, bill_file: str, query: str):
     """
     if bill_file is None:
         print('You must provide a bill file.')
-        exit(1)
+        sys.exit(1)
 
     bill: EnergyBill = bill_extractor.extract_bill_information(bill_file)
     output = create_json_output(bill, query)

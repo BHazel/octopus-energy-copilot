@@ -6,12 +6,10 @@ import os
 import click
 from colorama import Fore, Style
 from dotenv import load_dotenv
-from gradio import ChatInterface, Info
 from langchain_openai import ChatOpenAI
+from cli.ui.chat import ChatUiBuilder
 from octopus_energy.chat import OctopusEnergyChatService
 
-COPILOT_TITLE = 'Octopus Energy Copilot'
-COPILOT_DESCRIPTION = 'An AI assistant to answer questions on your Octopus Energy account and data.'
 COPILOT_MSG = 'Copilot'
 
 load_dotenv()
@@ -49,6 +47,10 @@ load_dotenv()
               type=click.BOOL,
               is_flag=True,
               help='Use a web user interface for the chat.')
+@click.option('-o', '--open', 'open_in_browser',
+              type=click.BOOL,
+              is_flag=True,
+              help='Open the UI in the default web browser.  Ignored if not using a web user interface.')
 def chat(api_key: str,
          number: str,
          meter_mpan: str,
@@ -56,7 +58,8 @@ def chat(api_key: str,
          openai_api_key: str,
          model: str,
          debug: bool,
-         ui: bool
+         ui: bool,
+         open_in_browser: bool
     ):
     """
     Work with Octopus Energy data via natural language chat.
@@ -68,7 +71,7 @@ def chat(api_key: str,
     print_chat(COPILOT_MSG, f'Open AI Model: {model}', True, debug)
 
     if ui:
-        use_web_ui(chat_service, debug)
+        use_web_ui(chat_service, debug, open_in_browser)
     else:
         use_cli(chat_service, debug)
 
@@ -99,7 +102,10 @@ def update_client_credentials(api_key: str = None,
     if openai_api_key is not None:
         os.environ['OPENAI_API_KEY'] = openai_api_key
 
-def use_web_ui(chat_service: OctopusEnergyChatService, debug: bool) -> None:
+def use_web_ui(chat_service: OctopusEnergyChatService,
+               debug: bool,
+               open_in_browser: bool
+    ) -> None:
     """
     Uses a web UI for the chat.
 
@@ -107,32 +113,9 @@ def use_web_ui(chat_service: OctopusEnergyChatService, debug: bool) -> None:
         chat_service (OctopusEnergyChatService): The chat service.
         debug (bool): A value indicating whether more verbose output should be displayed.
     """
-    def post_message(message, history):
-        """
-        Posts a message to the chat.
-
-        This function is in the format expected by Gradio for its chat interface.
-
-        Args:
-            message (str): The message to post.
-            history (list): The chat history.
-        """
-        for debug_message in chat_service.post_message(message):
-            if debug:
-                Info(debug_message)
-
-        return chat_service.chat_history[-1].content
-
-    example_chat_queries_path = f'{os.path.dirname(__file__)}/../assets/example_chat_queries.txt'
-    with open(example_chat_queries_path, 'r', encoding='utf-8') as example_chat_queries_file:
-        example_chat_queries_text = example_chat_queries_file.read()
-    example_chat_queries = example_chat_queries_text.split('\n')
-
-    chat_interface = ChatInterface(post_message,
-                                   examples=example_chat_queries,
-                                   title=COPILOT_TITLE,
-                                   description=COPILOT_DESCRIPTION,)
-    chat_interface.launch()
+    chat_interface_builder = ChatUiBuilder(chat_service, debug)
+    interface = chat_interface_builder.build_ui()
+    interface.launch(inbrowser=open_in_browser)
 
 def use_cli(chat_service: OctopusEnergyChatService, debug: bool) -> bool:
     """
