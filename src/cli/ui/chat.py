@@ -7,7 +7,6 @@ from gradio import ChatInterface, Info
 from cli.ui import BaseUiBuilder
 from octopus_energy.chat import OctopusEnergyChatService
 
-
 class ChatUiBuilder(BaseUiBuilder):
     """
     Builds the web UI for the chat CLI command.

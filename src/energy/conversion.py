@@ -2,14 +2,10 @@
 Interconversion of energy values and related quantities.
 """
 
-from pint import Quantity, UnitRegistry
+from pint import Quantity
+from energy.units import kg, kWh
 
 CO2_EMISSION_FACTOR_MAGNITUDE = 0.20707
-
-UNIT_REGISTRY = UnitRegistry()
-
-kg = UNIT_REGISTRY.kilogram
-kWh = UNIT_REGISTRY.kilowatt_hour
 
 def co2_emission_factor() -> Quantity:
     """
