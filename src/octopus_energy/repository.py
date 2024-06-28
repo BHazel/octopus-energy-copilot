@@ -4,7 +4,13 @@ A repository for working with data from the Octopus Energy API.
 
 from datetime import datetime
 from octopus_energy.client import OctopusEnergyClient
-from octopus_energy.model import Account, Consumption, ConsumptionGrouping
+from octopus_energy.model import (
+    Account,
+    Consumption,
+    ConsumptionGrouping,
+    Product,
+    ProductFiltering
+)
 
 class OctopusEnergyRepository:
     """
@@ -118,3 +124,18 @@ class OctopusEnergyRepository:
         interval_end = to_date if to_date else max([entry.interval_end for entry in consumption_data])
         consumption = Consumption(total_consumption, interval_start.isoformat(), interval_end.isoformat())
         return consumption
+
+    def get_products(self,
+                     availability_date: datetime = None,
+                     filtering: ProductFiltering = ProductFiltering.DEFAULT
+        ) -> list[Product]:
+        """
+        Gets all products.
+
+        Args:
+            availability_date (datetime, optional): The date to filter products by availability.
+                Defaults to None.
+            filtering (ProductFiltering, optional): The filtering of the products.
+                Defaults to ProductFiltering.DEFAULT.
+        """
+        return self.client.get_products(availability_date, filtering)

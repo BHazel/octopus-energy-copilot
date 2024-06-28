@@ -2,7 +2,7 @@
 Types for working with data from the Octopus Energy API.
 """
 
-from enum import Enum
+from enum import Enum, Flag
 
 class Consumption:
     """
@@ -23,6 +23,70 @@ class ConsumptionGrouping(Enum):
     WEEK = 'week'
     MONTH = 'month'
     QUARTER = 'quarter'
+
+class Link:
+    """
+    Represents a link.
+    """
+    def __init__(self,
+                 href: str,
+                 method: str,
+                 rel: str):
+        self.href: str = href
+        self.method: str = method,
+        self.rel: str = rel
+
+class Product:
+    """
+    Represents a product.
+    """
+    def __init__(self,
+                 code: str,
+                 full_name: str,
+                 display_name: str,
+                 description: str,
+                 is_variable: bool,
+                 is_green: bool,
+                 is_tracker: bool,
+                 is_prepay: bool,
+                 is_business: bool,
+                 is_restricted: bool,
+                 term: int,
+                 available_from: str,
+                 available_to: str,
+                 links: list[Link],
+                 brand: str,
+                 tariffs_active_at: str = None,
+                 direction: str = None
+        ):
+        self.code: str = code
+        self.full_name: str = full_name
+        self.display_name: str = display_name
+        self.description: str = description
+        self.is_variable: bool = is_variable
+        self.is_green: bool = is_green
+        self.is_tracker: bool = is_tracker
+        self.is_prepay: bool = is_prepay
+        self.is_business: bool = is_business
+        self.is_restricted: bool = is_restricted
+        self.term: int = term
+        self.available_from: str = available_from
+        self.available_to: str = available_to
+        self.links: list[Link] = links
+        self.brand: str = brand
+        self.tariffs_active_at: str = tariffs_active_at
+        self.direction: str = direction
+
+class ProductFiltering(Flag):
+    """
+    Defines constants for filtering product types.
+    """
+    DEFAULT = 0
+    VARIABLE = 1 << 0
+    GREEN = 1 << 1
+    TRACKER = 1 << 2
+    PREPAY = 1 << 3
+    BUSINESS = 1 << 4
 
 class Agreement:
     """

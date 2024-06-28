@@ -4,32 +4,39 @@ A client and types for interacting with the Octopus Energy API.
 
 import json
 from datetime import datetime
+from typing import TypeVar
 from requests import get, Response
-from octopus_energy.model import Account, Consumption, ConsumptionGrouping
+from octopus_energy.model import (
+    Account,
+    Consumption,
+    ConsumptionGrouping,
+    Product,
+    ProductFiltering
+)
 
 BASE_URI: str = 'https://api.octopus.energy/v1'
+T = TypeVar('T')
+TRUE = str(True).lower()
 
-class ConsumptionResponse:
+class ClientResponse[T]:
     """
-    Represents a response from the Octopus Energy API containing consumption data.
+    Represents a response from the Octopus Energy API.
     """
 
-    def __init__(self, count: int, next: str, previous: str, results: list[Consumption]):
+    def __init__(self, count: int, next: str, previous: str, results: list[T]):
         """
-        Represents a response from the Octopus Energy API containing consumption data split into
-        30-minute periods.
+        Initialises an instance of the ClientResponse class.
 
         Args:
-            count (int): The count of consumption data entries in the response.
-            next (str): The URL for the next page of consumption data if available, otherwise None.
-            previous (str): The URL for the previous page of consumption data if available,
-                otherwise None.
-            results (list[Consumption]): The consumption data entries.
+            count (int): The count of entries in the response.
+            next (str): The URL for the next page of data if available, otherwise None.
+            previous (str): The URL for the previous page of data if available, otherwise None.
+            results (list[T]): The data entries.
         """
         self.count: int = count
         self.next: str = next
         self.previous: str = previous
-        self.results: list[Consumption] = results
+        self.results: list[T] = results
 
 class OctopusEnergyClient:
     """
@@ -69,7 +76,7 @@ class OctopusEnergyClient:
         response: Response = self.get(f'{BASE_URI}/accounts/{self.account_number}')
         account_data = json.loads(response.text)
         account: Account = Account(**account_data)
-        
+
         return account
 
     def get_consumption(self,
@@ -95,7 +102,10 @@ class OctopusEnergyClient:
         is_next: bool = True
         page: int = 1
         while is_next:
-            consumption: ConsumptionResponse = self.get_consumption_page(from_date, to_date, grouping, page)
+            consumption: ClientResponse = self.get_consumption_page(from_date,
+                                                                    to_date,
+                                                                    grouping,
+                                                                    page)
             consumption_data += consumption.results
             page += 1
             if consumption.next is None:
@@ -108,7 +118,7 @@ class OctopusEnergyClient:
                              to_date: datetime = None,
                              grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR,
                              page: int = 1
-        ) -> ConsumptionResponse:
+        ) -> ClientResponse:
         """
         Retrieves a specific page of consumption data from the Octopus Energy API.
 
@@ -123,7 +133,7 @@ class OctopusEnergyClient:
                 Defaults to 1.
 
         Returns:
-            ConsumptionResponse: The specified page of consumption data.
+            ClientResponse[Consumption]: The specified page of consumption data.
         """
         base_request_uri: str = f'{BASE_URI}/electricity-meter-points/{self.meter_mpan}/meters/{self.meter_serial}/consumption'
         parameters: dict[str, str] = {}
@@ -138,7 +148,7 @@ class OctopusEnergyClient:
 
         url_parameters: str = ''
         if len(parameters) > 0:
-            url_parameters = f'?{'&'.join([f'{key}={value}' for key, value in parameters.items()])}'
+            url_parameters = self.build_query_string(parameters)
 
         response: Response = self.get(f'{base_request_uri}{url_parameters}')
 
@@ -146,13 +156,109 @@ class OctopusEnergyClient:
         results_data = consumption_data['results']
         results = [Consumption(**result_entry) for result_entry in results_data]
 
-        consumption: ConsumptionResponse = ConsumptionResponse(
+        consumption: ClientResponse = ClientResponse(
             consumption_data['count'],
             consumption_data['next'],
             consumption_data['previous'],
             results)
 
         return consumption
+
+    def get_products(self,
+                     availability_date: datetime = None,
+                     filtering: ProductFiltering = None
+        ) -> list[Product]:
+        """
+        Retrieves product data from the Octopus Energy API.
+
+        Returns:
+            list[Product]: A list of product data.
+        """
+        product_data: list[Product] = []
+        is_next: bool = True
+        page: int = 1
+        while is_next:
+            products: ClientResponse = self.get_proucts_page(availability_date,
+                                                             filtering,
+                                                             page)
+            product_data += products.results
+            page += 1
+            if products.next is None:
+                is_next = False
+
+        return product_data
+
+    def get_proucts_page(self,
+                         availability_date: datetime = None,
+                         filtering: ProductFiltering = None,
+                         page: int = 1
+        ) -> ClientResponse:
+        """
+        Retrieves a specific page of product data from the Octopus Energy API.
+
+        Args:
+            is_variable (bool, optional): A value indicating whether the product is variable.
+                Defaults to None.
+            is_green (bool, optional): A value indicating whether the product is green.
+                Defaults to None.
+            is_tracker (bool, optional): A value indicating whether the product is a tracker.
+                Defaults to None.
+            is_prepay (bool, optional): A value indicating whether the product is prepay.
+                Defaults to None.
+            is_business (bool, optional): A value indicating whether the product is for business.
+                Defaults to None.
+            available_at (datetime, optional): The date and time the product is available.
+                Defaults to None.
+        
+        Returns:
+            ClientResponse[Product]: The specified page of product data.
+        """
+        base_request_uri: str = f'{BASE_URI}/products'
+        parameters: dict[str, str] = {}
+        if filtering and ProductFiltering.VARIABLE in filtering:
+            parameters['is_variable'] = TRUE
+        if filtering and ProductFiltering.GREEN in filtering:
+            parameters['is_green'] = TRUE
+        if filtering and ProductFiltering.TRACKER in filtering:
+            parameters['is_tracker'] = TRUE
+        if filtering and ProductFiltering.PREPAY in filtering:
+            parameters['is_prepay'] = TRUE
+        if filtering and ProductFiltering.BUSINESS in filtering:
+            parameters['is_business'] = TRUE
+        if availability_date:
+            parameters['available_at'] = availability_date.isoformat()
+        if page:
+            parameters['page'] = page
+
+        url_parameters: str = ''
+        if len(parameters) > 0:
+            url_parameters = self.build_query_string(parameters)
+
+        response: Response = self.get(f'{base_request_uri}{url_parameters}')
+
+        product_data = json.loads(response.text)
+        results_data = product_data['results']
+        results = [Product(**result_entry) for result_entry in results_data]
+
+        products: ClientResponse = ClientResponse(
+            product_data['count'],
+            product_data['next'],
+            product_data['previous'],
+            results)
+
+        return products
+
+    def build_query_string(self, parameters: dict[str, str]) -> str:
+        """
+        Builds a query string from the specified parameters.
+
+        Args:
+            parameters (dict[str, str]): The parameters to build the query string from.
+
+        Returns:
+            str: The query string.
+        """
+        return f'?{'&'.join([f'{key}={value}' for key, value in parameters.items()])}'
 
     def get(self, url) -> Response:
         """
