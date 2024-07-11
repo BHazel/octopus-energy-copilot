@@ -14,6 +14,37 @@ def co2_emission_factor() -> Quantity:
     """
     return CO2_EMISSION_FACTOR_MAGNITUDE * kg / kWh
 
+def convert_value(amount: Quantity,
+                  to_unit: Quantity
+    ) -> float:
+    """
+    Convert an amount from one unit to another.
+    """
+    converted_value = amount.to(to_unit)
+    return converted_value.magnitude
+
+def calculate_power_for_energy(energy: Quantity,
+                               duration: Quantity,
+                               to_unit: Quantity
+    ) -> float:
+    """
+    Convert an amount of energy to power with a given duration.
+    """
+    power = energy / duration
+    converted_power = power.to(to_unit)
+    return converted_power.magnitude
+
+def calculate_energy_for_power(power: Quantity,
+                               duration: Quantity,
+                               to_unit: Quantity
+    ) -> float:
+    """
+    Convert an amount of power to energy with a given duration.
+    """
+    energy = power * duration
+    converted_energy = energy.to(to_unit)
+    return converted_energy.magnitude
+
 def convert_to_co2(energy: Quantity) -> float:
     """
     Converts the given energy to the mass of CO2 saved in kg.

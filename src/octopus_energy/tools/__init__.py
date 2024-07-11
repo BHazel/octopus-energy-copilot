@@ -4,11 +4,17 @@ AI tools module.
 
 from octopus_energy.tools.account import get_account
 from octopus_energy.tools.consumption import (
-    convert_consumption_to_co2,
     get_max_consumption,
     get_min_consumption,
     get_period_for_grouping,
     get_total_consumption
+)
+from octopus_energy.tools.conversion import (
+    calculate_energy,
+    calculate_power,
+    convert_energy,
+    convert_energy_to_co2,
+    convert_power
 )
 
 def tools() -> dict[str, callable]:
@@ -17,7 +23,11 @@ def tools() -> dict[str, callable]:
         dict[str, callable]: The tools available to the AI copilot.
     """
     return {
-        'convert_consumption_to_co2': convert_consumption_to_co2,
+        'calculate_energy': calculate_energy,
+        'calculate_power': calculate_power,
+        'convert_energy': convert_energy,
+        'convert_energy_to_co2': convert_energy_to_co2,
+        'convert_power': convert_power,
         'get_account': get_account,
         'get_max_consumption': get_max_consumption,
         'get_min_consumption': get_min_consumption,

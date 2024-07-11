@@ -7,6 +7,7 @@ from cli.account import account_group
 from cli.bill import bill_group
 from cli.chat import chat
 from cli.consumption import consumption_group
+from cli.convert import convert_group
 from cli.product import product_group
 
 @click.group()
@@ -21,6 +22,7 @@ main.add_command(account_group)
 main.add_command(bill_group)
 main.add_command(consumption_group)
 main.add_command(chat)
+main.add_command(convert_group)
 main.add_command(product_group)
 
 if __name__ == '__main__':
