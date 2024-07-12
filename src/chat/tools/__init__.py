@@ -2,14 +2,14 @@
 AI tools module.
 """
 
-from octopus_energy.tools.account import get_account
-from octopus_energy.tools.consumption import (
+from chat.tools.account import get_account
+from chat.tools.consumption import (
     get_max_consumption,
     get_min_consumption,
     get_period_for_grouping,
     get_total_consumption
 )
-from octopus_energy.tools.conversion import (
+from chat.tools.conversion import (
     calculate_energy,
     calculate_power,
     convert_energy,

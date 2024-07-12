@@ -5,14 +5,14 @@ Builder for the web UI for the chat CLI command.
 import os
 from gradio import ChatInterface, Info
 from cli.ui import BaseUiBuilder
-from octopus_energy.chat import OctopusEnergyChatService
+from chat.service import ChatService
 
 class ChatUiBuilder(BaseUiBuilder):
     """
     Builds the web UI for the chat CLI command.
     """
     def __init__(self,
-                 chat_service: OctopusEnergyChatService,
+                 chat_service: ChatService,
                  debug: bool
         ):
         """

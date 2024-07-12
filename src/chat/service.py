@@ -1,38 +1,26 @@
 """
-A service to work with Octopus Energy data via AI chat.
+A service to work with Octopus Energy and other data and functions via AI chat.
 """
 
 from datetime import datetime
 import os
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
-from octopus_energy.tools import tools
+from chat.tools import tools
 
-class OctopusEnergyChatService:
+class ChatService:
     """
-    Works with Octopus Energy data via AI chat.
+    Works with Octopus Energy and other data and functions via AI chat.
     """
     def __init__(self,
-                 api_key: str,
-                 account_number: str,
-                 meter_mpan: str,
-                 meter_serial: str,
                  chat_model: BaseChatModel
     ):
         """
         Initializes the Octopus Energy chat.
 
         Args:
-            api_key: The Octopus Energy API key.
-            account_number: The account number.
-            meter_mpan: The electricity meter MPAN.
-            meter_serial: The electricity meter serial number.
             chat_model: The Open AI model.
         """
-        self.api_key = api_key
-        self.meter_mpan = meter_mpan
-        self.meter_serial = meter_serial
-        self.account_number = account_number
         self.chat_model = chat_model
 
         self.initialise()

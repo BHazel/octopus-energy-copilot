@@ -8,7 +8,7 @@ from colorama import Fore, Style
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from cli.ui.chat import ChatUiBuilder
-from octopus_energy.chat import OctopusEnergyChatService
+from chat.service import ChatService
 
 COPILOT_MSG = 'Copilot'
 
@@ -66,7 +66,7 @@ def chat(api_key: str,
     """
     update_client_credentials(api_key, number, meter_mpan, meter_serial, openai_api_key)
     llm_chat_model = ChatOpenAI(api_key=openai_api_key, model=model)
-    chat_service = OctopusEnergyChatService(api_key, None, meter_mpan, meter_serial, llm_chat_model)
+    chat_service = ChatService(llm_chat_model)
     print_chat(COPILOT_MSG, 'Welcome to the Octopus Energy Copilot!')
     print_chat(COPILOT_MSG, f'Open AI Model: {model}', True, debug)
 
@@ -102,7 +102,7 @@ def update_client_credentials(api_key: str = None,
     if openai_api_key is not None:
         os.environ['OPENAI_API_KEY'] = openai_api_key
 
-def use_web_ui(chat_service: OctopusEnergyChatService,
+def use_web_ui(chat_service: ChatService,
                debug: bool,
                open_in_browser: bool
     ) -> None:
@@ -117,7 +117,7 @@ def use_web_ui(chat_service: OctopusEnergyChatService,
     interface = chat_interface_builder.build_ui()
     interface.launch(inbrowser=open_in_browser)
 
-def use_cli(chat_service: OctopusEnergyChatService, debug: bool) -> bool:
+def use_cli(chat_service: ChatService, debug: bool) -> bool:
     """
     Uses a CLI interface for the chat.
 
