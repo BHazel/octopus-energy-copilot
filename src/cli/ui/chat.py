@@ -2,17 +2,18 @@
 Builder for the web UI for the chat CLI command.
 """
 
+import asyncio
 import os
 from gradio import ChatInterface, Info
 from cli.ui import BaseUiBuilder
-from chat.service import ChatService
+from chat.service import SemanticChatService
 
 class ChatUiBuilder(BaseUiBuilder):
     """
     Builds the web UI for the chat CLI command.
     """
     def __init__(self,
-                 chat_service: ChatService,
+                 chat_service: SemanticChatService,
                  debug: bool
         ):
         """
@@ -35,7 +36,7 @@ class ChatUiBuilder(BaseUiBuilder):
                              title='Octopus Energy Copilot: Chat',
                              description='An AI assistant to answer questions on your Octopus Energy account and data.')
 
-    def post_message(self, message, history):
+    async def post_message(self, message, history):
         """
         Posts a message to the chat.
 
@@ -45,7 +46,7 @@ class ChatUiBuilder(BaseUiBuilder):
             message (str): The message to post.
             history (list): The chat history.
         """
-        for debug_message in self.chat_service.post_message(message):
+        for debug_message in await self.chat_service.post_message(message):
             if self.debug:
                 Info(debug_message)
 

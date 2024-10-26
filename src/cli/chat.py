@@ -2,13 +2,14 @@
 CLI commands for AI chat.
 """
 
+import asyncio
 import os
 import click
 from colorama import Fore, Style
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
+from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 from cli.ui.chat import ChatUiBuilder
-from chat.service import ChatService
+from chat.service import SemanticChatService
 
 COPILOT_MSG = 'Copilot'
 
@@ -65,15 +66,15 @@ def chat(api_key: str,
     Work with Octopus Energy data via natural language chat.
     """
     update_client_credentials(api_key, number, meter_mpan, meter_serial, openai_api_key)
-    llm_chat_model = ChatOpenAI(api_key=openai_api_key, model=model)
-    chat_service = ChatService(llm_chat_model)
+    chat_completion = OpenAIChatCompletion(ai_model_id=model, api_key=openai_api_key)
+    chat_service = SemanticChatService(chat_completion)
     print_chat(COPILOT_MSG, 'Welcome to the Octopus Energy Copilot!')
     print_chat(COPILOT_MSG, f'Open AI Model: {model}', True, debug)
 
     if ui:
         use_web_ui(chat_service, debug, open_in_browser)
     else:
-        use_cli(chat_service, debug)
+        asyncio.run(use_cli(chat_service, debug))
 
 def update_client_credentials(api_key: str = None,
                               number: str = None,
@@ -102,7 +103,7 @@ def update_client_credentials(api_key: str = None,
     if openai_api_key is not None:
         os.environ['OPENAI_API_KEY'] = openai_api_key
 
-def use_web_ui(chat_service: ChatService,
+def use_web_ui(chat_service: SemanticChatService,
                debug: bool,
                open_in_browser: bool
     ) -> None:
@@ -117,7 +118,7 @@ def use_web_ui(chat_service: ChatService,
     interface = chat_interface_builder.build_ui()
     interface.launch(inbrowser=open_in_browser)
 
-def use_cli(chat_service: ChatService, debug: bool) -> bool:
+async def use_cli(chat_service: SemanticChatService, debug: bool) -> bool:
     """
     Uses a CLI interface for the chat.
 
@@ -127,7 +128,7 @@ def use_cli(chat_service: ChatService, debug: bool) -> bool:
     """
     while True:
         user_input = prompt_chat('User')
-        for debug_message in chat_service.post_message(user_input):
+        async for debug_message in chat_service.post_message(user_input):
             print_chat(COPILOT_MSG, debug_message, True, debug)
 
         print_chat(COPILOT_MSG, chat_service.chat_history[-1].content)
