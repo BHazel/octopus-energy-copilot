@@ -3,6 +3,9 @@ Types for working with data from the Octopus Energy API.
 """
 
 from enum import Enum, Flag
+from typing import Generic, TypeVar
+
+T = TypeVar('T')
 
 class Consumption:
     """
@@ -36,6 +39,100 @@ class Link:
         self.method: str = method,
         self.rel: str = rel
 
+class Tariff:
+    """
+    Represents an energy tariff.
+    """
+    def __init__(self,
+                 code: str,
+                 standing_charge_exc_vat: float,
+                 standing_charge_inc_vat: float,
+                 online_discount_exc_vat: float,
+                 online_discount_inc_vat: float,
+                 dual_fuel_discount_exc_vat: float,
+                 dual_fuel_discount_inc_vat: float,
+                 exit_fees_exc_vat: float,
+                 exit_fees_inc_vat: float,
+                 exit_fees_type: str,
+                 standard_unit_rate_exc_vat: float,
+                 standard_unit_rate_inc_vat: float,
+                 links: list[Link] = None
+        ):
+        self.code: str = code
+        self.standing_charge_exc_vat: float = standing_charge_exc_vat
+        self.standing_charge_inc_vat: float = standing_charge_inc_vat
+        self.online_discount_exc_vat: float = online_discount_exc_vat
+        self.online_discount_inc_vat: float = online_discount_inc_vat
+        self.dual_fuel_discount_exc_vat: float = dual_fuel_discount_exc_vat
+        self.dual_fuel_discount_inc_vat: float = dual_fuel_discount_inc_vat
+        self.exit_fees_exc_vat: float = exit_fees_exc_vat
+        self.exit_fees_inc_vat: float = exit_fees_inc_vat
+        self.exit_fees_type: str = exit_fees_type
+        self.standard_unit_rate_exc_vat: float = standard_unit_rate_exc_vat
+        self.standard_unit_rate_inc_vat: float = standard_unit_rate_inc_vat
+        self.links: list[Link] = links
+
+class Rate:
+    """
+    Represents a rate including and excluding VAT.
+    """
+    def __init__(self,
+                 annual_cost_inc_vat: float,
+                 annual_cost_exc_vat: float
+        ):
+        self.annual_cost_inc_vat: float = annual_cost_inc_vat
+        self.annual_cost_exc_vat: float = annual_cost_exc_vat
+
+class Sample(Generic[T]):
+    def __init__(self,
+                 electricity_single_rate: T,
+                 electricity_dual_rate: T,
+                 dual_fuel_single_rate: T,
+                 dual_fuel_dual_rate: T
+        ):
+        self.electricity_single_rate: T = electricity_single_rate
+        self.electricity_dual_rate: T = electricity_dual_rate
+        self.dual_fuel_single_rate: T = dual_fuel_single_rate
+        self.dual_fuel_dual_rate: T = dual_fuel_dual_rate
+
+class GridSupplyPointInfo(Generic[T]):
+    def __init__(self,
+                 direct_debit_monthly: T
+        ):
+        self.direct_debit_monthly: T = direct_debit_monthly
+
+class GridSupplyPointMap(Generic[T]):
+    def __init__(self,
+                 _a: GridSupplyPointInfo[T],
+                 _b: GridSupplyPointInfo[T],
+                 _c: GridSupplyPointInfo[T],
+                 _d: GridSupplyPointInfo[T],
+                 _e: GridSupplyPointInfo[T],
+                 _f: GridSupplyPointInfo[T],
+                 _g: GridSupplyPointInfo[T],
+                 _h: GridSupplyPointInfo[T],
+                 _j: GridSupplyPointInfo[T],
+                 _k: GridSupplyPointInfo[T],
+                 _l: GridSupplyPointInfo[T],
+                 _m: GridSupplyPointInfo[T],
+                 _n: GridSupplyPointInfo[T],
+                 _p: GridSupplyPointInfo[T]
+        ):
+        self._A: GridSupplyPointInfo[T] = _a
+        self._B: GridSupplyPointInfo[T] = _b
+        self._C: GridSupplyPointInfo[T] = _c
+        self._D: GridSupplyPointInfo[T] = _d
+        self._E: GridSupplyPointInfo[T] = _e
+        self._F: GridSupplyPointInfo[T] = _f
+        self._G: GridSupplyPointInfo[T] = _g
+        self._H: GridSupplyPointInfo[T] = _h
+        self._J: GridSupplyPointInfo[T] = _j
+        self._K: GridSupplyPointInfo[T] = _k
+        self._L: GridSupplyPointInfo[T] = _l
+        self._M: GridSupplyPointInfo[T] = _m
+        self._N: GridSupplyPointInfo[T] = _n
+        self._P: GridSupplyPointInfo[T] = _p
+
 class Product:
     """
     Represents a product.
@@ -56,9 +153,49 @@ class Product:
                  available_to: str,
                  links: list[Link],
                  brand: str,
+                 single_register_electricity_tariffs: GridSupplyPointMap[Tariff] = None,
+                 dual_register_electricity_tariffs: GridSupplyPointMap[Tariff] = None,
+                 single_register_gas_tariffs: GridSupplyPointMap[Tariff] = None,
+                 sample_quotes: GridSupplyPointMap[Sample[Rate]] = None,
                  tariffs_active_at: str = None,
                  direction: str = None
         ):
+        """
+        Initialises an instance of the Product class.
+
+        Args:
+            code (str): The product code.
+            full_name (str): The full product name.
+            display_name (str): The product display name.
+            description (str): The product description.
+            is_variable (bool): A value indicating whether the product is a variable rate product.
+            is_green (bool): A value indicating whether the product is a green product.
+            is_tracker (bool): A value indicating whether the product is a tracker product.
+            is_prepay (bool): A value indicating whether the product is a prepay product.
+            is_business (bool): A value indicating whether the product is a business product.
+            is_restricted (bool): A value indicating whether the product is a restricted product.
+            term (int): The product term in months.
+            available_from (str): The date the product is available from.
+            available_to (str): The date the product is available to.
+            links (list[Link]): The links to more information on the product.
+            brand (str): The product brand.
+            single_register_electricity_tariffs (GridSupplyPointTariffMap, optional):
+                The single register electricity tariffs.
+                Defaults to None.
+            dual_register_electricity_tariffs (GridSupplyPointTariffMap, optional):
+                The dual register electricity tariffs.
+                Defaults to None.
+            single_register_gas_tariffs (GridSupplyPointTariffMap, optional):
+                The single register gas tariffs.
+                Defaults to None.
+            sample_quotes (GridSupplyPointSampleQuoteMap, optional):
+                The sample quotes.
+                Defaults to None.
+            tariffs_active_at (str, optional): The date the tariffs are active from.
+                Defaults to None.
+            direction (str, optional): The product direction.
+                Defaults to None.
+        """
         self.code: str = code
         self.full_name: str = full_name
         self.display_name: str = display_name
@@ -74,6 +211,10 @@ class Product:
         self.available_to: str = available_to
         self.links: list[Link] = links
         self.brand: str = brand
+        self.single_register_electricity_tariffs: GridSupplyPointMap[Tariff] = single_register_electricity_tariffs
+        self.dual_register_electricity_tariffs: GridSupplyPointMap[Tariff] = dual_register_electricity_tariffs
+        self.single_register_gas_tariffs: GridSupplyPointMap[Tariff] = single_register_gas_tariffs
+        self.sample_quotes: GridSupplyPointMap[Sample[Rate]] = sample_quotes
         self.tariffs_active_at: str = tariffs_active_at
         self.direction: str = direction
 
