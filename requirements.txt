@@ -27,7 +27,7 @@ flexparser==0.3.1
 fonttools==4.53.0
 frozenlist==1.4.1
 fsspec==2024.6.0
-gradio==4.36.0
+gradio==5.0.0
 gradio_client==1.0.1
 grpcio==1.63.0
 h11==0.14.0
