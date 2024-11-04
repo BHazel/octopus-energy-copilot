@@ -6,7 +6,7 @@ import os
 import json
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 from bill.model import EnergyBill
 
