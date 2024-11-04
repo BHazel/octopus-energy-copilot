@@ -47,7 +47,7 @@ jsonschema==4.22.0
 jsonschema-path==0.3.2
 jsonschema-specifications==2023.12.1
 kiwisolver==1.4.5
-langchain==0.2.1
+langchain==0.3.7
 langchain-community==0.2.1
 langchain-core==0.2.10
 langchain-openai==0.1.13
