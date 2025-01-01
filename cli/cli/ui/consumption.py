@@ -4,10 +4,10 @@ Builder for the web UI for the consumption CLI command.
 
 from datetime import datetime, timedelta
 from gradio import Blocks, Dropdown, Interface, Textbox
-from cli import create_json_output
-from cli.ui import BaseUiBuilder
 from octopus_energy.model import ConsumptionGrouping
 from octopus_energy.repository import OctopusEnergyRepository
+from .. import create_json_output
+from . import BaseUiBuilder
 
 class ConsumptionUiBuilder(BaseUiBuilder):
     """

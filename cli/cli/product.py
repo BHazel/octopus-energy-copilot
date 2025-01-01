@@ -6,10 +6,10 @@ from datetime import datetime
 import os
 import click
 from dotenv import load_dotenv
-from cli import create_json_output
 from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Product, ProductFiltering
 from octopus_energy.repository import OctopusEnergyRepository
+from . import create_json_output
 
 load_dotenv()
 

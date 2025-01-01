@@ -6,13 +6,13 @@ from datetime import datetime
 import os
 import click
 from dotenv import load_dotenv
-from cli import create_json_output
-from cli.ui.consumption import ConsumptionUiBuilder
 from energy.conversion import convert_to_co2
 from energy.units import kWh
 from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Consumption, ConsumptionGrouping
 from octopus_energy.repository import OctopusEnergyRepository
+from . import create_json_output
+from .ui.consumption import ConsumptionUiBuilder
 
 load_dotenv()
 

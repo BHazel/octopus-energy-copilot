@@ -4,7 +4,6 @@ CLI commands for working with energy and related values.
 
 import click
 from pint import Quantity
-from cli import create_json_output
 from energy.conversion import (
     calculate_power_for_energy,
     convert_value,
@@ -18,6 +17,7 @@ from energy.units import (
     POWER_UNITS,
     POWER_UNIT_MAP
 )
+from . import create_json_output
 
 @click.group("energy")
 def convert_energy_group():

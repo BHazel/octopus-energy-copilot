@@ -10,8 +10,8 @@ from langchain_core.language_models import BaseChatModel
 from langchain_openai import ChatOpenAI
 from bill.extraction import BillExtractor
 from bill.model import EnergyBill
-from cli import create_json_output
-from cli.ui.bill import BillUiBuilder
+from . import create_json_output
+from .ui.bill import BillUiBuilder
 
 load_dotenv()
 

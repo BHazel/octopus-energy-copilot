@@ -5,8 +5,8 @@ Builder for the web UI for the bill CLI command.
 from gradio import Blocks, File, Interface, Textbox
 from bill.extraction import BillExtractor
 from bill.model import EnergyBill
-from cli import create_json_output
-from cli.ui import BaseUiBuilder
+from .. import create_json_output
+from . import BaseUiBuilder
 
 class BillUiBuilder(BaseUiBuilder):
     """

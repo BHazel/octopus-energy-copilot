@@ -4,8 +4,8 @@ Builder for the web UI for the chat CLI command.
 
 import os
 from gradio import ChatInterface, Info
-from cli.ui import BaseUiBuilder
 from chat.service import ChatService
+from . import BaseUiBuilder
 
 class ChatUiBuilder(BaseUiBuilder):
     """
@@ -55,7 +55,7 @@ class ChatUiBuilder(BaseUiBuilder):
         """
         Gets example chat queries.
         """
-        example_chat_queries_path = f'{os.path.dirname(__file__)}/../../assets/example_chat_queries.txt'
+        example_chat_queries_path = f'{os.path.dirname(__file__)}/../assets/example_chat_queries.txt'
         with open(example_chat_queries_path, 'r', encoding='utf-8') as example_chat_queries_file:
             example_chat_queries_text = example_chat_queries_file.read()
         return example_chat_queries_text.split('\n')

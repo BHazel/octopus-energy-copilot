@@ -7,8 +7,8 @@ import click
 from colorama import Fore, Style
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from cli.ui.chat import ChatUiBuilder
 from chat.service import ChatService
+from .ui.chat import ChatUiBuilder
 
 COPILOT_MSG = 'Copilot'
 
