@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from typing import TypeVar
 from requests import get, Response
-from octopus_energy.model import (
+from .model import (
     Account,
     Consumption,
     ConsumptionGrouping,

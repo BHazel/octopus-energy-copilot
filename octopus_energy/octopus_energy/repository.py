@@ -3,8 +3,8 @@ A repository for working with data from the Octopus Energy API.
 """
 
 from datetime import datetime
-from octopus_energy.client import OctopusEnergyClient
-from octopus_energy.model import (
+from .client import OctopusEnergyClient
+from .model import (
     Account,
     Consumption,
     ConsumptionGrouping,
