@@ -8,7 +8,7 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
 from pypdf import PdfReader
 
-from bill.model import EnergyBill
+from .model import EnergyBill
 
 class BillExtractor:
     """
@@ -31,7 +31,7 @@ class BillExtractor:
         """
         Initialises the chat infrastructure.
         """
-        bill_extractor_prompt_path = f'{os.path.dirname(__file__)}/../assets/bill_extractor_prompt.txt'
+        bill_extractor_prompt_path = f'{os.path.dirname(__file__)}/assets/bill_extractor_prompt.txt'
         with open(bill_extractor_prompt_path, 'r', encoding='utf-8') as bill_extractor_prompt_file:
             self.bill_extractor_prompt = bill_extractor_prompt_file.read()
 
