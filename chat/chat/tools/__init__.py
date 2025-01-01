@@ -2,14 +2,14 @@
 AI tools module.
 """
 
-from chat.tools.account import get_account
-from chat.tools.consumption import (
+from .account import get_account
+from .consumption import (
     get_max_consumption,
     get_min_consumption,
     get_period_for_grouping,
     get_total_consumption
 )
-from chat.tools.conversion import (
+from .conversion import (
     calculate_energy,
     calculate_power,
     convert_energy,

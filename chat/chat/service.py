@@ -6,7 +6,7 @@ from datetime import datetime
 import os
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
-from chat.tools import tools
+from .tools import tools
 
 class ChatService:
     """
@@ -30,7 +30,7 @@ class ChatService:
         Initialises the chat infrastructure.
         """
         self.runnable_chat = self.chat_model.bind_tools(tools().values())
-        main_chat_prompt_path = f'{os.path.dirname(__file__)}/../assets/main_chat_prompt.txt'
+        main_chat_prompt_path = f'{os.path.dirname(__file__)}/assets/main_chat_prompt.txt'
         with open(main_chat_prompt_path, 'r', encoding='utf-8') as main_chat_prompt_file:
             self.main_chat_prompt = main_chat_prompt_file.read()
 
