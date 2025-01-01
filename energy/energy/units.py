@@ -2,7 +2,7 @@
 Defines constants for energy units.
 """
 
-from energy import UNIT_REGISTRY
+from . import UNIT_REGISTRY
 
 # Duration
 s = UNIT_REGISTRY.second
