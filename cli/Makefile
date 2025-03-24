@@ -1,5 +1,7 @@
 RELEASE := 0
 
+all: install
+
 install: build
 	python -m build
 
