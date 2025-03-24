@@ -30,6 +30,18 @@ def calculate_power_for_energy(energy: Quantity,
     """
     Convert an amount of energy to power with a given duration.
     """
+    if not energy.check('[energy]'):
+        raise ValueError('Energy must have units of energy.')
+
+    if not duration.check('[time]'):
+        raise ValueError('Duration must have units of time.')
+
+    if duration.magnitude == 0:
+        raise ValueError('Duration must have a value greater than 0.')
+
+    if not to_unit.check('[power]'):
+        raise ValueError('Unit to convert to must have units of power.')
+
     power = energy / duration
     converted_power = power.to(to_unit)
     return converted_power.magnitude
@@ -41,6 +53,15 @@ def calculate_energy_for_power(power: Quantity,
     """
     Convert an amount of power to energy with a given duration.
     """
+    if not power.check('[power]'):
+        raise ValueError('Power must have units of power.')
+
+    if not duration.check('[time]'):
+        raise ValueError('Duration must have units of time.')
+
+    if not to_unit.check('[energy]'):
+        raise ValueError('Unit to convert to must have units of energy.')
+
     energy = power * duration
     converted_energy = energy.to(to_unit)
     return converted_energy.magnitude
@@ -55,6 +76,9 @@ def convert_to_co2(energy: Quantity) -> float:
     Returns:
         Quantity: The energy converted to the mass of CO2 saved in kg.
     """
+    if not energy.check('[energy]'):
+        raise ValueError('Energy must have units of energy.')
+
     energy_in_kwh = energy.to(kWh)
     mass_co2 = energy_in_kwh * co2_emission_factor()
     return mass_co2.magnitude
