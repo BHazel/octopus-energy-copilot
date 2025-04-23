@@ -64,7 +64,7 @@ def chat(api_key: str,
     """
     Work with Octopus Energy data via natural language chat.
     """
-    update_client_credentials(api_key, number, meter_mpan, meter_serial, openai_api_key)
+    update_env_credentials(api_key, number, meter_mpan, meter_serial, openai_api_key)
     llm_chat_model = ChatOpenAI(api_key=openai_api_key, model=model)
     chat_service = ChatService(llm_chat_model)
     print_chat(COPILOT_MSG, 'Welcome to the Octopus Energy Copilot!')
@@ -75,14 +75,14 @@ def chat(api_key: str,
     else:
         use_cli(chat_service, debug)
 
-def update_client_credentials(api_key: str = None,
-                              number: str = None,
-                              meter_mpan: str = None,
-                              meter_serial: str = None,
-                              openai_api_key: str = None
+def update_env_credentials(api_key: str = None,
+                           number: str = None,
+                           meter_mpan: str = None,
+                           meter_serial: str = None,
+                           openai_api_key: str = None
     ) -> None:
     """
-    Updates the Octopus Energy and Open AI client credentials.
+    Updates the credentials in the environment variables.
 
     Args:
         api_key: The Octopus Energy API key.

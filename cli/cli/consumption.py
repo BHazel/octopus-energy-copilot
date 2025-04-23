@@ -5,16 +5,11 @@ CLI commands for electricity consumption.
 from datetime import datetime
 import os
 import click
-from dotenv import load_dotenv
 from energy.conversion import convert_to_co2
 from energy.units import kWh
-from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Consumption, ConsumptionGrouping
-from octopus_energy.repository import OctopusEnergyRepository
-from . import create_json_output
+from . import create_json_output, OCTOPUS_ENERGY_REPOSITORY, update_client_credentials
 from .ui.consumption import ConsumptionUiBuilder
-
-load_dotenv()
 
 @click.group('consumption')
 def consumption_group():
@@ -65,14 +60,11 @@ def list_consumption(api_key: str,
     """
     Lists electricity consumption between two dates.
     """
-    repository: OctopusEnergyRepository = OctopusEnergyRepository(
-        OctopusEnergyClient(
-            api_key,
-            None,
-            meter_mpan,
-            meter_serial))
+    update_client_credentials(api_key=api_key,
+                              meter_mpan=meter_mpan,
+                              meter_serial=meter_serial)
 
-    consumption: list[Consumption] = repository.get_consumption(
+    consumption: list[Consumption] = OCTOPUS_ENERGY_REPOSITORY.get_consumption(
         from_date=from_date,
         to_date=to_date,
         grouping=get_consumption_grouping(grouping))
@@ -126,14 +118,11 @@ def get_max_consumption(api_key: str,
     """
     Gets the maximum electricity consumption between two dates.
     """
-    repository: OctopusEnergyRepository = OctopusEnergyRepository(
-        OctopusEnergyClient(
-            api_key,
-            None,
-            meter_mpan,
-            meter_serial))
+    update_client_credentials(api_key=api_key,
+                              meter_mpan=meter_mpan,
+                              meter_serial=meter_serial)
 
-    max_consumption: Consumption = repository.get_max_consumption(
+    max_consumption: Consumption = OCTOPUS_ENERGY_REPOSITORY.get_max_consumption(
         from_date=from_date,
         to_date=to_date,
         grouping=get_consumption_grouping(grouping))
@@ -187,14 +176,11 @@ def get_min_consumption(api_key: str,
     """
     Gets the minimum electricity consumption between two dates.
     """
-    repository: OctopusEnergyRepository = OctopusEnergyRepository(
-        OctopusEnergyClient(
-            api_key,
-            None,
-            meter_mpan,
-            meter_serial))
+    update_client_credentials(api_key=api_key,
+                              meter_mpan=meter_mpan,
+                              meter_serial=meter_serial)
 
-    min_consumption: Consumption = repository.get_min_consumption(
+    min_consumption: Consumption = OCTOPUS_ENERGY_REPOSITORY.get_min_consumption(
         from_date=from_date,
         to_date=to_date,
         grouping=get_consumption_grouping(grouping))
@@ -243,14 +229,11 @@ def get_total_consumption(api_key: str,
     """
     Gets the total electricity consumption between two dates.
     """
-    repository: OctopusEnergyRepository = OctopusEnergyRepository(
-        OctopusEnergyClient(
-            api_key,
-            None,
-            meter_mpan,
-            meter_serial))
+    update_client_credentials(api_key=api_key,
+                              meter_mpan=meter_mpan,
+                              meter_serial=meter_serial)
 
-    total_consumption: Consumption = repository.get_total_consumption(
+    total_consumption: Consumption = OCTOPUS_ENERGY_REPOSITORY.get_total_consumption(
         from_date=from_date,
         to_date=to_date)
 
@@ -284,14 +267,11 @@ def use_consumption_ui(api_key: str,
     """
     Use a web user interface to get electricity consumption data.
     """
-    repository: OctopusEnergyRepository = OctopusEnergyRepository(
-        OctopusEnergyClient(
-            api_key,
-            None,
-            meter_mpan,
-            meter_serial))
+    update_client_credentials(api_key=api_key,
+                              meter_mpan=meter_mpan,
+                              meter_serial=meter_serial)
 
-    consumption_ui_builder = ConsumptionUiBuilder(api_key, meter_mpan, meter_serial, repository)
+    consumption_ui_builder = ConsumptionUiBuilder(api_key, meter_mpan, meter_serial, OCTOPUS_ENERGY_REPOSITORY)
     interface = consumption_ui_builder.build_ui()
     interface.launch(inbrowser=open_in_browser)
 

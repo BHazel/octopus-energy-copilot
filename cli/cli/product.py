@@ -5,13 +5,8 @@ CLI commands for products.
 from datetime import datetime
 import os
 import click
-from dotenv import load_dotenv
-from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Product, ProductFiltering
-from octopus_energy.repository import OctopusEnergyRepository
-from . import create_json_output
-
-load_dotenv()
+from . import create_json_output, OCTOPUS_ENERGY_REPOSITORY, update_client_credentials
 
 @click.group('product')
 def product_group():
@@ -62,9 +57,7 @@ def list_products(api_key: str,
     """
     List products.
     """
-    repository: OctopusEnergyRepository = OctopusEnergyRepository(
-        OctopusEnergyClient(api_key, None, None, None)
-    )
+    update_client_credentials(api_key=api_key)
 
     filtering: ProductFiltering = ProductFiltering.DEFAULT
     if is_variable:
@@ -78,7 +71,7 @@ def list_products(api_key: str,
     if is_business:
         filtering = filtering | ProductFiltering.BUSINESS
 
-    products: list[Product] = repository.get_products(available_at, filtering)
+    products: list[Product] = OCTOPUS_ENERGY_REPOSITORY.get_products(available_at, filtering)
 
     output = create_json_output(products, query)
     print(output)

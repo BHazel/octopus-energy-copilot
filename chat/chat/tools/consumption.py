@@ -2,23 +2,14 @@
 AI tools for working with consumption data.
 """
 
-import os
 from datetime import datetime, timedelta
 import jsonpickle
 from dotenv import load_dotenv
 from langchain_core.tools import tool
-from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import ConsumptionGrouping
-from octopus_energy.repository import OctopusEnergyRepository
+from .. import OCTOPUS_ENERGY_REPOSITORY
 
 load_dotenv()
-
-repository = OctopusEnergyRepository(
-    OctopusEnergyClient(
-        os.environ['OCTOPUS_ENERGY_API_KEY'],
-        None,
-        os.environ['OCTOPUS_ENERGY_METER_MPAN'],
-        os.environ['OCTOPUS_ENERGY_METER_SERIAL']))
 
 @tool
 def get_max_consumption(from_date: str = None,
@@ -47,7 +38,7 @@ def get_max_consumption(from_date: str = None,
     end_date = datetime.fromisoformat(to_date) if to_date else None
     period = ConsumptionGrouping(None if period == 'half-hour' else period)
 
-    max_consumption = repository.get_max_consumption(start_date, end_date, period)
+    max_consumption = OCTOPUS_ENERGY_REPOSITORY.get_max_consumption(start_date, end_date, period)
     return jsonpickle.encode(max_consumption)
 
 @tool
@@ -76,7 +67,7 @@ def get_min_consumption(from_date: str = None,
     start_date = datetime.fromisoformat(from_date) if from_date else None
     end_date = datetime.fromisoformat(to_date) if to_date else None
 
-    min_consumption = repository.get_min_consumption(start_date, end_date, period)
+    min_consumption = OCTOPUS_ENERGY_REPOSITORY.get_min_consumption(start_date, end_date, period)
     return jsonpickle.encode(min_consumption)
 
 @tool
@@ -99,7 +90,7 @@ def get_total_consumption(from_date: str = None,
     start_date = datetime.fromisoformat(from_date) if from_date else None
     end_date = datetime.fromisoformat(to_date) if to_date else None
 
-    total_consumption = repository.get_total_consumption(start_date, end_date)
+    total_consumption = OCTOPUS_ENERGY_REPOSITORY.get_total_consumption(start_date, end_date)
     return jsonpickle.encode(total_consumption)
 
 @tool

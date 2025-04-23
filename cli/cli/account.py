@@ -4,13 +4,8 @@ CLI commands for working with an account.
 
 import os
 import click
-from dotenv import load_dotenv
-from octopus_energy.client import OctopusEnergyClient
 from octopus_energy.model import Account
-from octopus_energy.repository import OctopusEnergyRepository
-from . import create_json_output
-
-load_dotenv()
+from . import create_json_output, OCTOPUS_ENERGY_REPOSITORY, update_client_credentials
 
 @click.group('account')
 def account_group():
@@ -38,14 +33,10 @@ def get_account(api_key: str,
     """
     Gets account details.
     """
-    repository: OctopusEnergyRepository = OctopusEnergyRepository(
-        OctopusEnergyClient(
-            api_key,
-            number,
-            None,
-            None))
+    update_client_credentials(api_key=api_key,
+                              number=number)
 
-    account: Account = repository.get_account()
+    account: Account = OCTOPUS_ENERGY_REPOSITORY.get_account()
     output = create_json_output(account, query)
 
     print(output)

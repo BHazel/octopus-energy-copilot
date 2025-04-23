@@ -3,7 +3,7 @@ A repository for working with data from the Octopus Energy API.
 """
 
 from datetime import datetime
-from .client import OctopusEnergyClient
+from .client import OctopusEnergyClientBase
 from .model import (
     Account,
     Consumption,
@@ -17,14 +17,14 @@ class OctopusEnergyRepository:
     A repository for working with data from the Octopus Energy API.
     """
 
-    def __init__(self, client: OctopusEnergyClient):
+    def __init__(self, client: OctopusEnergyClientBase):
         """
         Initializes an instance of the OctopusEnergyRepository class.
 
         Args:
-            client (OctopusEnergyClient): The Octopus Energy client.
+            client (OctopusEnergyClientBase): The Octopus Energy client.
         """
-        self.client: OctopusEnergyClient = client
+        self.client: OctopusEnergyClientBase = client
 
     def get_account(self) -> Account:
         """

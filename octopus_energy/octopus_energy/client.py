@@ -2,9 +2,10 @@
 A client and types for interacting with the Octopus Energy API.
 """
 
+from abc import ABCMeta, abstractmethod
 import json
 from datetime import datetime
-from typing import TypeVar
+from typing import Literal, TypeVar
 from requests import get, Response
 from .model import (
     Account,
@@ -38,7 +39,53 @@ class ClientResponse[T]:
         self.previous: str = previous
         self.results: list[T] = results
 
-class OctopusEnergyClient:
+class OctopusEnergyClientBase(metaclass=ABCMeta):
+    """
+    Base class for clients for the Octopus Energy API.
+    """
+    @abstractmethod
+    def get_account(self) -> Account:
+        """
+        Retrieves account data from the Octopus Energy API.
+
+        Returns:
+            Account: The account data.
+        """
+
+    @abstractmethod
+    def get_consumption(self,
+                        from_date: datetime = None,
+                        to_date: datetime = None,
+                        grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR
+        ) -> list[Consumption]:
+        """
+        Retrieves consumption data from the Octopus Energy API.
+
+        Args:
+            from_date (datetime, optional): The start date for the consumption data.
+                Defaults to None.
+            to_date (datetime, optional): The end date for the consumption data.
+                Defaults to None.
+            grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
+                Defaults to ConsumptionGrouping.HALF_HOUR.
+
+        Returns:
+            list[Consumption]: A list of consumption data.
+        """
+
+    @abstractmethod
+    def get_products(self,
+                     availability_date: datetime = None,
+                     filtering: ProductFiltering = None
+        ) -> list[Product]:
+        """
+        Retrieves product data from the Octopus Energy API.
+
+        Returns:
+            list[Product]: A list of product data.
+        """
+
+class OctopusEnergyClient(OctopusEnergyClientBase):
     """
     A client for interacting with the Octopus Energy API.
     """
@@ -274,3 +321,45 @@ class OctopusEnergyClient:
             Response: The response from the URL.
         """
         return get(url=url, auth=(self.api_key, ''), timeout=10)
+
+class OctopusEnergyClientFactory:
+    """
+    Factory for creating Octopus Energy clients.
+    """
+
+    def create(self,
+               client_type: Literal['API'] = 'API',
+               api_key: str = None,
+               account_number: str = None,
+               meter_mpan: str = None,
+               meter_serial: str = None
+        ) -> OctopusEnergyClientBase:
+        """
+        Creates an Octopus Energy client.
+
+        Args:
+            client_type (Literal['API'], optional): The type of client to create.
+                Defaults to API.
+            api_key (str): The API key for accessing the Octopus Energy API.
+                Defaults to None.
+            account_number (str, optional): The Octopus Energy account number.
+                Defaults to None.
+            meter_mpan (str, optional): The Meter Point Administration Number (MPAN) for the meter.
+                Defaults to None.
+            meter_serial (str, optional): The serial number for the meter.
+                Defaults to None.
+
+        Returns:
+            OctopusEnergyClientBase: The Octopus Energy client.
+        """
+        match client_type:
+            case 'API':
+                if not all([api_key, account_number, meter_mpan, meter_serial]):
+                    raise ValueError('The API client requires an API key, account number, meter MPAN and serial number.')
+
+                return OctopusEnergyClient(api_key,
+                                           account_number,
+                                           meter_mpan,
+                                           meter_serial)
+            case _:
+                pass
