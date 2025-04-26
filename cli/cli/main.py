@@ -8,6 +8,7 @@ from .bill import bill_group
 from .chat import chat
 from .consumption import consumption_group
 from .convert import convert_group
+from .agent import agent_group
 from .product import product_group
 
 @click.group()
@@ -19,6 +20,7 @@ def main():
     """
 
 main.add_command(account_group)
+main.add_command(agent_group)
 main.add_command(bill_group)
 main.add_command(consumption_group)
 main.add_command(chat)

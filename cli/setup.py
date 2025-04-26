@@ -26,6 +26,7 @@ setup(
         'jsonpickle',
         'langchain',
         'langchain-openai',
+        'mcp',
         'Pint',
         'python-dotenv',
         f'bill @ file://{PROJECT_ROOT}/../bill',
