@@ -6,6 +6,7 @@ Tools and AI for working with data from Octopus Energy, energy bills and energy 
 
 * Python
 * LangChain
+* MCP
 
 ## Concepts
 
@@ -21,6 +22,12 @@ Package | Description
 A CLI, using the packages, is included in the `cli` directory.
 
 ## Getting Started with the CLI
+
+Although it is optional, it is highly recommended to use a virtual environment.  In fact, the included MCP server configuration expects one in the `./.venv` folder.  A GNU Make target is included to create the virtual environment and set up a `.env` file:
+
+```bash
+make init
+```
 
 The CLI is also packaged as a standard Python package and can be built and installed from within the `cli` directory.  By default the CLI build and installation is run in _editable_ mode.
 
