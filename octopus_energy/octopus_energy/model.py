@@ -2,7 +2,10 @@
 Types for working with data from the Octopus Energy API.
 """
 
-from enum import Enum, Flag
+from typing import Literal
+from enum import Flag
+
+ConsumptionGrouping = Literal['half-hour', 'hour', 'day', 'week', 'month', 'quarter']
 
 class Consumption:
     """
@@ -12,17 +15,6 @@ class Consumption:
         self.consumption: float = consumption
         self.interval_start: str = interval_start
         self.interval_end: str = interval_end
-
-class ConsumptionGrouping(Enum):
-    """
-    Defines constants for grouping consumption data.
-    """
-    HALF_HOUR = None
-    HOUR = 'hour'
-    DAY = 'day'
-    WEEK = 'week'
-    MONTH = 'month'
-    QUARTER = 'quarter'
 
 class Link:
     """

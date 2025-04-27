@@ -56,7 +56,7 @@ class OctopusEnergyClientBase(metaclass=ABCMeta):
     def get_consumption(self,
                         from_date: datetime = None,
                         to_date: datetime = None,
-                        grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR
+                        grouping: ConsumptionGrouping = 'half-hour'
         ) -> list[Consumption]:
         """
         Retrieves consumption data from the Octopus Energy API.
@@ -67,7 +67,7 @@ class OctopusEnergyClientBase(metaclass=ABCMeta):
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
             grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
-                Defaults to ConsumptionGrouping.HALF_HOUR.
+                Defaults to 'half-hour'.
 
         Returns:
             list[Consumption]: A list of consumption data.
@@ -129,7 +129,7 @@ class OctopusEnergyClient(OctopusEnergyClientBase):
     def get_consumption(self,
                         from_date: datetime = None,
                         to_date: datetime = None,
-                        grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR
+                        grouping: ConsumptionGrouping = 'half-hour'
         ) -> list[Consumption]:
         """
         Retrieves consumption data from the Octopus Energy API.
@@ -140,7 +140,7 @@ class OctopusEnergyClient(OctopusEnergyClientBase):
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
             grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
-                Defaults to ConsumptionGrouping.HALF_HOUR.
+                Defaults to 'half-hour'.
 
         Returns:
             list[Consumption]: A list of consumption data.
@@ -163,7 +163,7 @@ class OctopusEnergyClient(OctopusEnergyClientBase):
     def get_consumption_page(self,
                              from_date: datetime = None,
                              to_date: datetime = None,
-                             grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR,
+                             grouping: ConsumptionGrouping = 'half-hour',
                              page: int = 1
         ) -> ClientResponse:
         """
@@ -175,7 +175,7 @@ class OctopusEnergyClient(OctopusEnergyClientBase):
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
             grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
-                Defaults to ConsumptionGrouping.HALF_HOUR.
+                Defaults to 'half-hour'.
             page (int, optional): The page number of the consumption data.
                 Defaults to 1.
 
@@ -190,8 +190,8 @@ class OctopusEnergyClient(OctopusEnergyClientBase):
             parameters['period_to'] = to_date.isoformat()
         if page:
             parameters['page'] = page
-        if grouping != ConsumptionGrouping.HALF_HOUR:
-            parameters['group_by'] = grouping.value
+        if grouping != 'half-hour':
+            parameters['group_by'] = grouping
 
         url_parameters: str = ''
         if len(parameters) > 0:

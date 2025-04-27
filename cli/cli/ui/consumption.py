@@ -54,8 +54,8 @@ class ConsumptionUiBuilder(BaseUiBuilder):
                               ]),
                               Textbox(label='From Date', value=self.DEFAULT_FROM_DATE.isoformat()),
                               Textbox(label='To Date', value=self.DEFAULT_TO_DATE.isoformat()),
-                              Dropdown(label='Grouping', value='Half Hour', choices=[
-                                    'Half Hour',
+                              Dropdown(label='Grouping', value='Half-Hour', choices=[
+                                    'Half-Hour',
                                     'Hour',
                                     'Day',
                                     'Week',
@@ -131,20 +131,4 @@ def map_ui_grouping_to_consumption_grouping(grouping: str) -> ConsumptionGroupin
     Returns:
         ConsumptionGrouping: The consumption grouping.
     """
-    match grouping:
-        case 'Half Hour':
-            consumption_grouping = ConsumptionGrouping.HALF_HOUR
-        case 'Hour':
-            consumption_grouping = ConsumptionGrouping.HOUR
-        case 'Day':
-            consumption_grouping = ConsumptionGrouping.DAY
-        case 'Week':
-            consumption_grouping = ConsumptionGrouping.WEEK
-        case 'Month':
-            consumption_grouping = ConsumptionGrouping.MONTH
-        case 'Quarter':
-            consumption_grouping = ConsumptionGrouping.QUARTER
-        case _:
-            consumption_grouping = ConsumptionGrouping.HALF_HOUR
-
-    return consumption_grouping
+    return '' if grouping == 'Half-Hour' else grouping.lower()

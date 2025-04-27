@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 import jsonpickle
 from dotenv import load_dotenv
 from langchain_core.tools import tool
-from octopus_energy.model import ConsumptionGrouping
 from .. import OCTOPUS_ENERGY_REPOSITORY
 
 load_dotenv()
@@ -36,7 +35,6 @@ def get_max_consumption(from_date: str = None,
     """
     start_date = datetime.fromisoformat(from_date) if from_date else None
     end_date = datetime.fromisoformat(to_date) if to_date else None
-    period = ConsumptionGrouping(None if period == 'half-hour' else period)
 
     max_consumption = OCTOPUS_ENERGY_REPOSITORY.get_max_consumption(start_date, end_date, period)
     return jsonpickle.encode(max_consumption)
@@ -111,20 +109,19 @@ def get_period_for_grouping(from_date: str = None,
         str: The date and time fo the end of the period in ISO-8601 format excluding time zone
         information.
     """
-    grouping = ConsumptionGrouping(period)
     start_date = datetime.fromisoformat(from_date) if from_date else None
-    match grouping:
-        case ConsumptionGrouping.HALF_HOUR:
+    match period:
+        case 'half-hour':
             end_date = start_date + timedelta(minutes=30)
-        case ConsumptionGrouping.HOUR:
+        case 'hour':
             end_date = start_date + timedelta(hours=1)
-        case ConsumptionGrouping.DAY:
+        case 'day':
             end_date = start_date + timedelta(days=1)
-        case ConsumptionGrouping.WEEK:
+        case 'week':
             end_date = start_date + timedelta(weeks=1)
-        case ConsumptionGrouping.MONTH:
+        case 'month':
             end_date = start_date + timedelta(days=30)
-        case ConsumptionGrouping.QUARTER:
+        case 'quarter':
             end_date = start_date + timedelta(days=90)
         case _:
             end_date = start_date

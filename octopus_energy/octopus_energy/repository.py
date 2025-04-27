@@ -38,7 +38,7 @@ class OctopusEnergyRepository:
     def get_consumption(self,
                         from_date: datetime = None,
                         to_date: datetime = None,
-                        grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR
+                        grouping: ConsumptionGrouping = 'half-hour'
         ) -> list[Consumption]:
         """
         Gets consumption data in set intervals between two dates.
@@ -49,7 +49,7 @@ class OctopusEnergyRepository:
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
             grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
-                Defaults to ConsumptionGrouping.HALF_HOUR.
+                Defaults to 'half-hour'.
 
         Returns:
             list[Consumption]: A list of consumption data.
@@ -59,7 +59,7 @@ class OctopusEnergyRepository:
     def get_max_consumption(self,
                             from_date: datetime = None,
                             to_date: datetime = None,
-                            grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR
+                            grouping: ConsumptionGrouping = 'half-hour'
         ) -> Consumption:
         """
         Gets the period with maximum consumption between two dates.
@@ -70,7 +70,7 @@ class OctopusEnergyRepository:
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
             grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
-                Defaults to ConsumptionGrouping.HALF_HOUR.
+                Defaults to 'half-hour'.
 
         Returns:
             Consumption: The period with maximum consumption.
@@ -82,7 +82,7 @@ class OctopusEnergyRepository:
     def get_min_consumption(self,
                             from_date: datetime = None,
                             to_date: datetime = None,
-                            grouping: ConsumptionGrouping = ConsumptionGrouping.HALF_HOUR
+                            grouping: ConsumptionGrouping = 'half-hour'
         ) -> Consumption:
         """
         Gets the period with minimum consumption between two dates.
@@ -93,7 +93,7 @@ class OctopusEnergyRepository:
             to_date (datetime, optional): The end date for the consumption data.
                 Defaults to None.
             grouping (ConsumptionGrouping, optional): The grouping of the consumption data.
-                Defaults to ConsumptionGrouping.HALF_HOUR.
+                Defaults to 'half-hour'.
 
         Returns:
             Consumption: The period with minimum consumption.

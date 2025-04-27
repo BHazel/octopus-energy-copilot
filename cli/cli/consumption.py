@@ -53,7 +53,7 @@ def list_consumption(api_key: str,
                     meter_serial: str,
                     from_date: datetime = None,
                     to_date: datetime = None,
-                    grouping: str = 'half-hour',
+                    grouping: ConsumptionGrouping = 'half-hour',
                     query: str = None,
                     co2: bool = False
     ):
@@ -67,7 +67,7 @@ def list_consumption(api_key: str,
     consumption: list[Consumption] = OCTOPUS_ENERGY_REPOSITORY.get_consumption(
         from_date=from_date,
         to_date=to_date,
-        grouping=get_consumption_grouping(grouping))
+        grouping=grouping)
 
     if co2:
         consumption = [convert_consumption_to_co2(c) for c in consumption]
@@ -111,7 +111,7 @@ def get_max_consumption(api_key: str,
                     meter_serial: str,
                     from_date: datetime = None,
                     to_date: datetime = None,
-                    grouping: str = 'half-hour',
+                    grouping: ConsumptionGrouping = 'half-hour',
                     query: str = None,
                     co2: bool = False
     ):
@@ -125,7 +125,7 @@ def get_max_consumption(api_key: str,
     max_consumption: Consumption = OCTOPUS_ENERGY_REPOSITORY.get_max_consumption(
         from_date=from_date,
         to_date=to_date,
-        grouping=get_consumption_grouping(grouping))
+        grouping=grouping)
 
     if co2:
         max_consumption = convert_consumption_to_co2(max_consumption)
@@ -169,7 +169,7 @@ def get_min_consumption(api_key: str,
                     meter_serial: str,
                     from_date: datetime = None,
                     to_date: datetime = None,
-                    grouping: str = 'half-hour',
+                    grouping: ConsumptionGrouping = 'half-hour',
                     query: str = None,
                     co2: bool = False
     ):
@@ -183,7 +183,7 @@ def get_min_consumption(api_key: str,
     min_consumption: Consumption = OCTOPUS_ENERGY_REPOSITORY.get_min_consumption(
         from_date=from_date,
         to_date=to_date,
-        grouping=get_consumption_grouping(grouping))
+        grouping=grouping)
 
     if co2:
         min_consumption = convert_consumption_to_co2(min_consumption)
@@ -274,19 +274,6 @@ def use_consumption_ui(api_key: str,
     consumption_ui_builder = ConsumptionUiBuilder(api_key, meter_mpan, meter_serial, OCTOPUS_ENERGY_REPOSITORY)
     interface = consumption_ui_builder.build_ui()
     interface.launch(inbrowser=open_in_browser)
-
-def get_consumption_grouping(grouping: str) -> ConsumptionGrouping:
-    """
-    Gets the consumption grouping from the CLI input.
-
-    Args:
-        grouping (str): The grouping from CLI input.
-    
-    Returns:
-        ConsumptionGrouping: The consumption grouping.
-    """
-    converted_grouping: str = None if grouping == 'half-hour' else grouping
-    return ConsumptionGrouping(converted_grouping)
 
 def convert_consumption_to_co2(consumption: Consumption) -> Consumption:
     """
